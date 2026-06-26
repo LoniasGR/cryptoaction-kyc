@@ -1,4 +1,5 @@
-import { submitKycApplication } from "#/api/kyc";
+import { submitKYCApplication } from "@/api/kyc";
+import { KYCApplicationSubmitSchema } from "@/types/kyc";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -7,23 +8,27 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
-import { useAppForm } from '@/hooks/form';
-import { useMutation } from '@tanstack/react-query';
+import { useAppForm } from "@/hooks/form";
+import { useMutation } from "@tanstack/react-query";
+import { FieldGroup } from "../ui/field";
 
 export function UserPage() {
   const submit = useMutation({
-    mutationFn: submitKycApplication,
+    mutationFn: submitKYCApplication,
     onSuccess: () => {
-      alert('KYC application submitted successfully!');
-    }
+      alert("KYC application submitted successfully!");
+    },
   });
   const form = useAppForm({
     defaultValues: {
-      fullName: '',
-      email: '',
-      idNumber: '',
+      fullName: "",
+      email: "",
+      idFile: new File([], "placeholder.txt", { type: "text/plain" }),
+    },
+    validators: {
+      onSubmit: KYCApplicationSubmitSchema,
     },
     onSubmit: async ({ value }) => {
       submit.mutate(value);
@@ -32,43 +37,49 @@ export function UserPage() {
   });
 
   return (
-    <Card className="w-full max-w-sm mt-6 ml-6">
+    <Card className="w-full max-w-sm mt-6 mx-auto min-w-xl">
       <CardAction>
-        <Badge variant="secondary" className="ml-4">KYC Application</Badge>
+        <Badge variant="secondary" className="ml-4">
+          KYC Application
+        </Badge>
       </CardAction>
       <CardHeader>
         <CardTitle>Submit your credentials</CardTitle>
         <CardDescription>
-          Enter your basic information and send your application for verification.
+          Enter your basic information and send your application for
+          verification.
         </CardDescription>
       </CardHeader>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
-        }}>
+        }}
+      >
         <CardContent>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <form.AppField name="fullName"
-                children={(field) => <field.TextField label="Full Name" required />}
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <form.AppField name="email"
-                  children={(field) => <field.TextField label="Email" required />}
+          <FieldGroup>
+            <form.AppField
+              name="fullName"
+              children={(field) => (
+                <field.TextField label="Full Name" required />
+              )}
+            />
+            <form.AppField
+              name="email"
+              children={(field) => <field.TextField label="Email" required />}
+            />
+            <form.AppField
+              name="idFile"
+              children={(field) => (
+                <field.FileUpload
+                  id="id-upload"
+                  label="ID Number"
+                  fileAccept="image/*,.pdf"
+                  required
                 />
-              </div>
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <form.AppField name="idNumber"
-                  children={(field) => <field.TextField label="ID Number" required />}
-                />
-              </div>
-            </div>
-          </div>
+              )}
+            />
+          </FieldGroup>
         </CardContent>
         <CardFooter className="flex-col gap-2 mt-4">
           <form.AppForm>

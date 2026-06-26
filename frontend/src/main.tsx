@@ -2,9 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import ReactDOM from 'react-dom/client';
 import { routeTree } from './routeTree.gen';
+import { AuthProvider } from './auth/authProvider';
 
+const queryClient = new QueryClient();
 
 const router = createRouter({
+  context: { queryClient },
   routeTree,
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -20,10 +23,11 @@ const rootElement = document.getElementById('app')!;
 
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
-  const queryClient = new QueryClient();
   root.render(
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
       </QueryClientProvider>
   );
 }

@@ -8,16 +8,37 @@ services:
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME}
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_USERNAME=${AUTH_DB_USER}
+      - KC_DB_PASSWORD=${AUTH_DB_PASSWORD}
+      - KC_DB_URL_HOST=db
+      - KC_DB_URL_PORT=5432
+      - KC_DB_URL_DATABASE=${AUTH_DB_NAME}
     command: start-dev
   db:
     image: postgres:18-alpine
-    container_name: postgres
+    container_name: db
     restart: always
     shm_size: 128mb
     env_file: ".env"
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./db/initdb.d/00-create-tables.sh:/docker-entrypoint-initdb.d/00-create-tables.sh
       - pgdata:/var/lib/postgresql
-
+  ipfs:
+    image: ipfs/kubo:release
+    container_name: ipfs
+    restart: always
+    volumes:
+      - ipfs_data:/data/ipfs
+      - ipfs_staging:/export
+    ports:
+      - 4001:4001
+      - 4001:4001/udp
+      - 127.0.0.1:5001:5001
+      - 127.0.0.1:8081:8080
 volumes:
   pgdata:
+  ipfs_data:
+  ipfs_staging:

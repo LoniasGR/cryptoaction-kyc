@@ -3,13 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
 from .models import SQLBase
+from ..config import DB_URL
 
-from ..config import SQLITE_FILE_NAME
-
-sqlite_url = f"sqlite:///{SQLITE_FILE_NAME}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args, echo=True)
+engine = create_engine(DB_URL, connect_args={"connect_timeout": 10}, echo=True)
 
 
 def create_db_and_tables():

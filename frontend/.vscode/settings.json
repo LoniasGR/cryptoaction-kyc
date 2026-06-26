@@ -22,4 +22,7 @@
         "source.organizeImports.eslint": "explicit",
         "source.fixAll.eslint": "explicit"
     },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

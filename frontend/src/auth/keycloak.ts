@@ -7,4 +7,4 @@ const keycloak = new Keycloak({
   clientId: KEYCLOAK_DATA.clientId,
 });
 
-export default keycloak;
+export { keycloak };

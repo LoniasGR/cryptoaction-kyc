@@ -1,37 +1,23 @@
-import { TanStackDevtools } from '@tanstack/react-devtools';
-import { FormDevtoolsPanel } from '@tanstack/react-form-devtools';
-import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
-import { Outlet, createRootRoute } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import '../styles.css';
+import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
+import type { QueryClient } from "@tanstack/react-query";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import "../styles.css";
 
-export const Route = createRootRoute({
+interface RouterContext {
+  queryClient: QueryClient
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
 });
 
 function RootComponent() {
   return (
     <>
+      <Header />
       <Outlet />
-      <TanStackDevtools
-        config={{
-          position: 'bottom-right',
-        }}
-        plugins={[
-          {
-            name: 'TanStack Router',
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-          {
-            name: 'TanStack Query',
-            render: <ReactQueryDevtoolsPanel />,
-          },
-          {
-            name: 'TanStack Form',
-            render: <FormDevtoolsPanel />,
-          },
-        ]}
-      />
+      <Footer />
     </>
   );
 }
