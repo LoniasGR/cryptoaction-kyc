@@ -8,9 +8,9 @@ export const KYCApplicationBaseSchema = z.object({
 });
 
 export const KYCApplicationSubmitSchema = KYCApplicationBaseSchema.extend({
-  idFile: z.file().refine((file) => file.size <= 10 * 1024 * 1024, {
+  idFile: z.optional(z.file().refine((file) => file.size <= 10 * 1024 * 1024, {
     message: "File size must be less than 10MB",
-  }),
+  })),
 });
 
 export const KYCApplicationSchema = KYCApplicationBaseSchema.extend({

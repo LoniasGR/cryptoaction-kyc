@@ -56,6 +56,8 @@ dependencies = [
     { name = "psycopg" },
     { name = "python-dotenv" },
     { name = "python-keycloak" },
+    { name = "python-multipart" },
+    { name = "requests" },
     { name = "sqlalchemy" },
 ]
 
@@ -65,6 +67,8 @@ requires-dist = [
     { name = "psycopg", specifier = ">=3.3.4" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "python-keycloak", specifier = ">=7.1.1" },
+    { name = "python-multipart", specifier = ">=0.0.32" },
+    { name = "requests", specifier = ">=2.34.2" },
     { name = "sqlalchemy", specifier = ">=2.0.51" },
 ]
 

@@ -32,14 +32,20 @@ export function FileUpload({
         {label}
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
+
       <FieldLabel
         htmlFor={id}
         className="relative flex w-full cursor-pointer bg-transparent font-semibold text-indigo-600 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500 mt-2   justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
       >
+        {field.state.value && (
+          <div className="mt-2 text-sm text-gray-600">
+            <span className="font-bold">Selected file:</span> <span className="font-normal">{field.state.value.name}</span>
+          </div>
+        )}
         <div className="text-center">
-          <Image className="mx-auto h-12 w-12 text-gray-400" />
+          {!field.state.value && <Image className="mx-auto h-12 w-12 text-gray-400" />}
           <div className="mt-4 flex text-sm/6 text-gray-600">
-            <span>Upload a file</span>
+            {!field.state.value && <span>Upload a file</span>}
             <Input
               type="file"
               id={id}
@@ -56,9 +62,9 @@ export function FileUpload({
               onBlur={field.handleBlur}
               required={required}
             />
-            <p className="pl-1">or drag and drop</p>
+            {!field.state.value && <p className="pl-1">or drag and drop</p>}
           </div>
-          <p className="text-xs/5 text-gray-600">Up to 10MB</p>
+          {!field.state.value &&  <p className="text-xs/5 text-gray-600">Up to 10MB</p>}
         </div>
       </FieldLabel>
       {description && <FieldDescription>{description}</FieldDescription>}

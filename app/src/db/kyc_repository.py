@@ -1,5 +1,5 @@
 from datetime import datetime
-from ..db.db import SessionDep
+from .db import SessionDep
 from ..kyc.kyc import KYCApplicationCreate, KYCApplicationSummary, KYCStatus
 from .models import KYCApplicationDB
 from sqlalchemy import select, func
@@ -39,7 +39,9 @@ def change_application_status(
 
 
 def get_all_applications_count(session: SessionDep):
-    total_applications = session.scalar(select(func.count()))
+    total_applications = session.scalar(
+        select(func.count("*")).select_from(KYCApplicationDB)
+    )
     return total_applications
 
 

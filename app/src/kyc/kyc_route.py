@@ -1,4 +1,10 @@
-from fastapi import APIRouter, status, HTTPException
+from typing import Annotated
+import requests
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
+
+from ..config import IPFS_URL
+
+from ..db.db import SessionDep
 from ..db.kyc_repository import (
     change_application_status,
     create_kyc_application,
@@ -7,7 +13,6 @@ from ..db.kyc_repository import (
     get_all_applications_count_by_status,
     get_single_application,
 )
-from ..db.db import SessionDep
 from .kyc import (
     KYCApplicationCreate,
     KYCApplicationStatistics,
@@ -19,7 +24,16 @@ router = APIRouter(prefix="/kyc")
 
 
 @router.post("", tags=["kyc"], status_code=status.HTTP_201_CREATED)
-def create_kyc_application_route(session: SessionDep, kyc: KYCApplicationCreate):
+def create_kyc_application_route(
+    session: SessionDep,
+    idFile: Annotated[UploadFile, File()],
+    fullName: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+):
+    kyc = KYCApplicationCreate(
+        fullName=fullName,
+        email=email,
+    )
     return create_kyc_application(session, kyc)
 
 

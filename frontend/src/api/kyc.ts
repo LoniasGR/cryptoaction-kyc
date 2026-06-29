@@ -5,7 +5,8 @@ export async function submitKYCApplication(value: KYCApplicationSubmit) {
   try {
     const response = await api.post<KYCApplicationSubmit>(
       "/kyc",
-      JSON.stringify(value),
+      value,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
     return response.data;
   } catch (error) {

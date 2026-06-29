@@ -17,6 +17,7 @@ class KYCApplicationDB(SQLBase):
     fullName: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column()
     status: Mapped[KYCStatus] = mapped_column()
+    # folderCid: Mapped[str] = mapped_column()
     createdAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

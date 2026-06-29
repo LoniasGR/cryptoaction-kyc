@@ -25,7 +25,7 @@ export function UserPage() {
     defaultValues: {
       fullName: "",
       email: "",
-      idFile: new File([], "placeholder.txt", { type: "text/plain" }),
+      idFile: undefined,
     },
     validators: {
       onSubmit: KYCApplicationSubmitSchema,
@@ -75,7 +75,6 @@ export function UserPage() {
                   id="id-upload"
                   label="ID Number"
                   fileAccept="image/*,.pdf"
-                  required
                 />
               )}
             />

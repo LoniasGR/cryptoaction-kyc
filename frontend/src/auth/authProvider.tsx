@@ -19,6 +19,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     keycloak.init({ pkceMethod: "S256" })
       .then((authenticated) => {
+        // keycloak.login();
+        console.log('Keycloak initialized. Authenticated:', authenticated);
         setIsAuthenticated(authenticated);
         if (authenticated) {
           setToken(keycloak.token);
