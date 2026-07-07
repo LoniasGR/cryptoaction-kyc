@@ -17,7 +17,7 @@ class KYCApplicationDB(SQLBase):
     fullName: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column()
     status: Mapped[KYCStatus] = mapped_column()
-    # folderCid: Mapped[str] = mapped_column()
+    idFileHash: Mapped[str] = mapped_column()
     createdAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -29,4 +29,4 @@ class KYCApplicationDB(SQLBase):
     submittedAt: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     def __repr__(self) -> str:
-        return f"KYCApplication(id={self.id}, fullName='{self.fullName}', email='{self.email}', status='{self.status}', createdAt='{self.createdAt}', updatedAt='{self.updatedAt}', submittedAt='{self.submittedAt}')"
+        return f"KYCApplication(id={self.id}, fullName='{self.fullName}', email='{self.email}', status='{self.status}', idFileHash='{self.idFileHash}', createdAt='{self.createdAt}', updatedAt='{self.updatedAt}', submittedAt='{self.submittedAt}')"

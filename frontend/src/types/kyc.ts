@@ -8,13 +8,15 @@ export const KYCApplicationBaseSchema = z.object({
 });
 
 export const KYCApplicationSubmitSchema = KYCApplicationBaseSchema.extend({
-  idFile: z.optional(z.file().refine((file) => file.size <= 10 * 1024 * 1024, {
-    message: "File size must be less than 10MB",
-  })),
+  idFile: z.file("ID file is required")
+    .refine((file) => file.size <= 10 * 1024 * 1024, {
+      message: "File size must be less than 10MB",
+    }),
 });
 
 export const KYCApplicationSchema = KYCApplicationBaseSchema.extend({
   id: z.string(),
+  idFileHash: z.string(),
   status: KYCStatusSchema,
   submittedAt: z.date(),
 });

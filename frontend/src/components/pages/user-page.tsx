@@ -25,19 +25,29 @@ export function UserPage() {
     defaultValues: {
       fullName: "",
       email: "",
-      idFile: undefined,
+      idFile: undefined as File | undefined,
     },
     validators: {
       onSubmit: KYCApplicationSubmitSchema,
     },
     onSubmit: async ({ value }) => {
-      submit.mutate(value);
-      alert(JSON.stringify(value, null, 2));
+      if (value.idFile === undefined) {
+        return {
+          fields: {
+            idFile: "ID file is required",
+          }
+        };
+      }
+      submit.mutate({ ...value, idFile: value.idFile }, {
+        onError: (error) => {
+          alert("Failed to submit KYC application: " + error.message);
+        }
+      });
     },
   });
 
   return (
-    <Card className="w-full max-w-sm mt-6 mx-auto min-w-xl">
+    <Card className="w-full max-w-md mt-6 mx-auto min-w-xl">
       <CardAction>
         <Badge variant="secondary" className="ml-4">
           KYC Application
@@ -73,8 +83,9 @@ export function UserPage() {
               children={(field) => (
                 <field.FileUpload
                   id="id-upload"
-                  label="ID Number"
+                  label="ID File"
                   fileAccept="image/*,.pdf"
+                  required
                 />
               )}
             />

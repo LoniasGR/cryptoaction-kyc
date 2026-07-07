@@ -1,4 +1,13 @@
 import {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@/components/ui/attachment";
+import {
   Field,
   FieldDescription,
   FieldError,
@@ -6,7 +15,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useFieldContext } from "@/hooks/form-context.tsx";
-import { Image } from "lucide-react";
+import { FileTextIcon, XIcon } from "lucide-react";
 
 export function FileUpload({
   id,
@@ -21,7 +30,7 @@ export function FileUpload({
   fileAccept?: string;
   required?: boolean;
 }) {
-  const field = useFieldContext<File>();
+  const field = useFieldContext<File | undefined>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   return (
     <Field data-invalid={isInvalid}>
@@ -32,41 +41,46 @@ export function FileUpload({
         {label}
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
-
-      <FieldLabel
-        htmlFor={id}
-        className="relative flex w-full cursor-pointer bg-transparent font-semibold text-indigo-600 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500 mt-2   justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
-      >
+      <Attachment>
+        <AttachmentMedia>
+          <FileTextIcon />
+        </AttachmentMedia>
+        <AttachmentContent>
+          {field.state.value && (
+            <AttachmentTitle>{field.state.value.name}</AttachmentTitle>
+          )}
+          {!field.state.value && (
+            <FieldLabel
+              htmlFor={id}
+            >
+              <AttachmentTitle>Upload a file or drag and drop</AttachmentTitle>
+              <AttachmentDescription>Up to 10MB</AttachmentDescription>
+              <Input
+                type="file"
+                id={id}
+                className="sr-only"
+                aria-invalid={isInvalid}
+                accept={fileAccept}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    field.handleChange(file);
+                    e.currentTarget.value = "";
+                  }
+                }}
+                onBlur={field.handleBlur}
+              />
+            </FieldLabel>
+          )}
+        </AttachmentContent>
         {field.state.value && (
-          <div className="mt-2 text-sm text-gray-600">
-            <span className="font-bold">Selected file:</span> <span className="font-normal">{field.state.value.name}</span>
-          </div>
+          <AttachmentActions>
+            <AttachmentAction aria-label="Remove uploaded file" onClick={() => field.handleChange(undefined)}>
+              <XIcon />
+            </AttachmentAction>
+          </AttachmentActions>
         )}
-        <div className="text-center">
-          {!field.state.value && <Image className="mx-auto h-12 w-12 text-gray-400" />}
-          <div className="mt-4 flex text-sm/6 text-gray-600">
-            {!field.state.value && <span>Upload a file</span>}
-            <Input
-              type="file"
-              id={id}
-              className="sr-only"
-              aria-invalid={isInvalid}
-              accept={fileAccept}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  field.handleChange(file);
-                  e.currentTarget.value = "";
-                }
-              }}
-              onBlur={field.handleBlur}
-              required={required}
-            />
-            {!field.state.value && <p className="pl-1">or drag and drop</p>}
-          </div>
-          {!field.state.value &&  <p className="text-xs/5 text-gray-600">Up to 10MB</p>}
-        </div>
-      </FieldLabel>
+      </Attachment>
       {description && <FieldDescription>{description}</FieldDescription>}
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>

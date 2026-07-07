@@ -1,8 +1,8 @@
 from typing import Annotated
-import requests
+
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
-from ..config import IPFS_URL
+from ..ipfs.client import add_file
 
 from ..db.db import SessionDep
 from ..db.kyc_repository import (
@@ -24,15 +24,17 @@ router = APIRouter(prefix="/kyc")
 
 
 @router.post("", tags=["kyc"], status_code=status.HTTP_201_CREATED)
-def create_kyc_application_route(
+async def create_kyc_application_route(
     session: SessionDep,
     idFile: Annotated[UploadFile, File()],
     fullName: Annotated[str, Form()],
     email: Annotated[str, Form()],
 ):
+    id_hash = await add_file(idFile.file.read())
     kyc = KYCApplicationCreate(
         fullName=fullName,
         email=email,
+        idFileHash=id_hash,
     )
     return create_kyc_application(session, kyc)
 

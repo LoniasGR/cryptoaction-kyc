@@ -1,8 +1,10 @@
 from datetime import datetime
+
+from sqlalchemy import func, select
+
+from ..kyc.kyc import KYCApplicationCreate, KYCStatus
 from .db import SessionDep
-from ..kyc.kyc import KYCApplicationCreate, KYCApplicationSummary, KYCStatus
 from .models import KYCApplicationDB
-from sqlalchemy import select, func
 
 
 def create_kyc_application(session: SessionDep, kyc: KYCApplicationCreate):

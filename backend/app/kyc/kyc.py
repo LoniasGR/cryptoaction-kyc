@@ -14,6 +14,7 @@ class KYCStatus(str, Enum):
 class KYCApplicationCreate(BaseModel):
     fullName: str
     email: str
+    idFileHash: str
 
 
 class KYCApplicationSummary(KYCApplicationCreate):
