@@ -13,13 +13,13 @@ function ApplicationComponent() {
   const queryClient = useQueryClient();
   
   const { data, isLoading } = useQuery({
-    queryKey: queryKeys.kycApplication(parseInt(applicationId, 10)),
-    queryFn: () => fetchKYCApplicationById(parseInt(applicationId, 10)),
+    queryKey: queryKeys.kycApplication(applicationId),
+    queryFn: () => fetchKYCApplicationById(applicationId),
   });
   const mutation = useMutation({
-    mutationFn: (decision: 'approve' | 'reject') => decideKYC(parseInt(applicationId, 10), decision),
+    mutationFn: (decision: 'approve' | 'reject') => decideKYC(applicationId, decision),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.kycApplication(parseInt(applicationId, 10)) });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.kycApplication(applicationId) });
       navigator({ to: '/admin' });
     },
   });

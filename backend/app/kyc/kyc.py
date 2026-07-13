@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from pydantic import BaseModel
 from enum import Enum
@@ -18,7 +19,7 @@ class KYCApplicationCreate(BaseModel):
 
 
 class KYCApplicationSummary(KYCApplicationCreate):
-    id: int
+    id: uuid.UUID
     status: KYCStatus
     submittedAt: datetime
 

@@ -1,7 +1,9 @@
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
-
+from sqlalchemy.exc import IntegrityError
+from ..auth.deps import userDependency, adminDependency
 from ..ipfs.client import add_file
 
 from ..db.db import SessionDep
@@ -20,12 +22,13 @@ from .kyc import (
     KYCStatus,
 )
 
-router = APIRouter(prefix="/kyc")
+router = APIRouter(prefix="/kyc", tags=["kyc"])
 
 
-@router.post("", tags=["kyc"], status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_kyc_application_route(
     session: SessionDep,
+    user: userDependency,
     idFile: Annotated[UploadFile, File()],
     fullName: Annotated[str, Form()],
     email: Annotated[str, Form()],
@@ -36,11 +39,28 @@ async def create_kyc_application_route(
         email=email,
         idFileHash=id_hash,
     )
-    return create_kyc_application(session, kyc)
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User ID not found"
+        )
+    try:
+        return create_kyc_application(session, kyc, user_id)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Application for user {user_id} already exists",
+        )
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while creating the KYC application: {str(e)}",
+        )
 
 
-@router.get("", tags=["kyc"])
-def get_kyc_applications(session: SessionDep):
+@router.get("", response_model=list[KYCApplicationSummary])
+def get_kyc_applications(session: SessionDep, admin: adminDependency):
     kyc_applications = get_all_applications(session)
     kyc_list: list[KYCApplicationSummary] = []
     for kyc in kyc_applications:
@@ -48,9 +68,8 @@ def get_kyc_applications(session: SessionDep):
     return kyc_list
 
 
-@router.get("/statistics", tags=["kyc"], response_model=KYCApplicationStatistics)
-def get_kyc_statistics(session: SessionDep):
-    print("TEST")
+@router.get("/statistics", response_model=KYCApplicationStatistics)
+def get_kyc_statistics(session: SessionDep, admin: adminDependency):
     total_application = get_all_applications_count(session)
     if total_application is None:
         total_application = 0
@@ -81,16 +100,20 @@ def get_kyc_statistics(session: SessionDep):
     }
 
 
-@router.get("/{application_id}", tags=["kyc"])
-def get_kyc_application(session: SessionDep, application_id: int):
+@router.get("/{application_id}", response_model=KYCApplicationSummary)
+def get_kyc_application(
+    session: SessionDep, application_id: uuid.UUID, admin: adminDependency
+):
     kyc_application = get_single_application(session, application_id)
     if kyc_application is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
     return KYCApplicationSummary.model_validate(kyc_application.__dict__)
 
 
-@router.put("/{application_id}/approve", tags=["kyc"])
-def approve_kyc_application(session: SessionDep, application_id: int):
+@router.put("/{application_id}/approve")
+def approve_kyc_application(
+    session: SessionDep, application_id: uuid.UUID, admin: adminDependency
+):
     kyc_application_old = get_single_application(session, application_id)
     if kyc_application_old is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
@@ -103,8 +126,10 @@ def approve_kyc_application(session: SessionDep, application_id: int):
     return {"message": "KYC application approved"}
 
 
-@router.put("/{application_id}/reject", tags=["kyc"])
-def reject_kyc_application(session: SessionDep, application_id: int):
+@router.put("/{application_id}/reject")
+def reject_kyc_application(
+    session: SessionDep, application_id: uuid.UUID, admin: adminDependency
+):
     kyc_application_old = get_single_application(session, application_id)
     if kyc_application_old is None:
         raise HTTPException(status_code=404, detail="KYC application not found")

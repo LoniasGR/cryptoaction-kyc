@@ -13,18 +13,22 @@ import {
 import { useAppForm } from "@/hooks/form";
 import { useMutation } from "@tanstack/react-query";
 import { FieldGroup } from "../ui/field";
+import { useAuth } from "@/auth/authProvider";
+import { toast } from "sonner";
 
 export function UserPage() {
+  const auth = useAuth();
+  console.log(auth.userInfo);
   const submit = useMutation({
     mutationFn: submitKYCApplication,
     onSuccess: () => {
-      alert("KYC application submitted successfully!");
+      toast.success("KYC application submitted successfully!", { duration: 5000 });
     },
   });
   const form = useAppForm({
     defaultValues: {
-      fullName: "",
-      email: "",
+      fullName: auth.userInfo?.name || "",
+      email: auth.userInfo?.email || "",
       idFile: undefined as File | undefined,
     },
     validators: {
@@ -40,7 +44,7 @@ export function UserPage() {
       }
       submit.mutate({ ...value, idFile: value.idFile }, {
         onError: (error) => {
-          alert("Failed to submit KYC application: " + error.message);
+          toast.error("Failed to submit KYC application: " + error.message, { duration: 5000 });
         }
       });
     },

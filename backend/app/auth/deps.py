@@ -1,3 +1,5 @@
+from typing_extensions import Annotated
+
 from fastapi import HTTPException, Security, status
 from fastapi.security import SecurityScopes
 import jwt
@@ -41,7 +43,6 @@ def validate_user(security_scopes: SecurityScopes, auth_header: str = Security(o
         "admin": {"Admin"},
     }
     for scope in security_scopes.scopes:
-        print(f"Validating scope: {scope} against client roles: {client_roles}")
         allowed_roles = scope_role_map.get(scope, set())
         if client_roles.isdisjoint(allowed_roles):
             raise HTTPException(
@@ -49,3 +50,20 @@ def validate_user(security_scopes: SecurityScopes, auth_header: str = Security(o
                 detail=f"Missing permission for scope '{scope}'",
             )
     return payload
+
+
+userDependency = Annotated[
+    dict,
+    Security(
+        validate_user,
+        scopes=["user"],
+    ),
+]
+
+adminDependency = Annotated[
+    dict,
+    Security(
+        validate_user,
+        scopes=["admin"],
+    ),
+]

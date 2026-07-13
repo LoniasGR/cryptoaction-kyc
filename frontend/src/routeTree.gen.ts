@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedUserRouteImport } from './routes/_authenticated/user'
+import { Route as AuthenticatedUserIndexRouteImport } from './routes/_authenticated/user/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminApplicationIdRouteImport } from './routes/_authenticated/admin/$applicationId'
 
@@ -24,9 +24,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedUserRoute = AuthenticatedUserRouteImport.update({
-  id: '/user',
-  path: '/user',
+const AuthenticatedUserIndexRoute = AuthenticatedUserIndexRouteImport.update({
+  id: '/user/',
+  path: '/user/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -43,36 +43,36 @@ const AuthenticatedAdminApplicationIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/user': typeof AuthenticatedUserRoute
   '/admin/$applicationId': typeof AuthenticatedAdminApplicationIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/user/': typeof AuthenticatedUserIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/user': typeof AuthenticatedUserRoute
   '/admin/$applicationId': typeof AuthenticatedAdminApplicationIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/user': typeof AuthenticatedUserIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/_authenticated/user': typeof AuthenticatedUserRoute
   '/_authenticated/admin/$applicationId': typeof AuthenticatedAdminApplicationIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/user/': typeof AuthenticatedUserIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/user' | '/admin/$applicationId' | '/admin/'
+  fullPaths: '/' | '/admin/$applicationId' | '/admin/' | '/user/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/user' | '/admin/$applicationId' | '/admin'
+  to: '/' | '/admin/$applicationId' | '/admin' | '/user'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/_authenticated/user'
     | '/_authenticated/admin/$applicationId'
     | '/_authenticated/admin/'
+    | '/_authenticated/user/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -96,11 +96,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/user': {
-      id: '/_authenticated/user'
+    '/_authenticated/user/': {
+      id: '/_authenticated/user/'
       path: '/user'
-      fullPath: '/user'
-      preLoaderRoute: typeof AuthenticatedUserRouteImport
+      fullPath: '/user/'
+      preLoaderRoute: typeof AuthenticatedUserIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
@@ -121,15 +121,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedUserRoute: typeof AuthenticatedUserRoute
   AuthenticatedAdminApplicationIdRoute: typeof AuthenticatedAdminApplicationIdRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedUserIndexRoute: typeof AuthenticatedUserIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedUserRoute: AuthenticatedUserRoute,
   AuthenticatedAdminApplicationIdRoute: AuthenticatedAdminApplicationIdRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedUserIndexRoute: AuthenticatedUserIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

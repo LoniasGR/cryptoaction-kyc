@@ -36,12 +36,12 @@ export function FileUpload({
     <Field data-invalid={isInvalid}>
       <FieldLabel
         htmlFor={label.replace(/\s+/g, "-").toLowerCase()}
-        className="text-muted-foreground text-sm relative cursor-pointer rounded-md bg-transparent font-semibold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-indigo-600 hover:text-indigo-500"
+        className="text-muted-foreground text-sm relative rounded-md bg-transparent font-semibold"
       >
         {label}
         {required && <span className="text-destructive"> *</span>}
       </FieldLabel>
-      <Attachment>
+      <Attachment className="cursor-pointer **:cursor-pointer">
         <AttachmentMedia>
           <FileTextIcon />
         </AttachmentMedia>

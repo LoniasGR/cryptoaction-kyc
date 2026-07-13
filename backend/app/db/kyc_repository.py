@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from sqlalchemy import func, select
@@ -7,10 +8,13 @@ from .db import SessionDep
 from .models import KYCApplicationDB
 
 
-def create_kyc_application(session: SessionDep, kyc: KYCApplicationCreate):
+def create_kyc_application(
+    session: SessionDep, kyc: KYCApplicationCreate, user_id: str
+):
     kyc_db = KYCApplicationDB(**kyc.model_dump())
     kyc_db.status = KYCStatus.PENDING
     kyc_db.submittedAt = datetime.now()
+    kyc_db.id = uuid.UUID(user_id)
     session.add(kyc_db)
     session.commit()
     session.refresh(kyc_db)
@@ -22,14 +26,14 @@ def get_all_applications(session: SessionDep):
     return kyc_applications
 
 
-def get_single_application(session: SessionDep, application_id: int):
+def get_single_application(session: SessionDep, application_id: uuid.UUID):
     stmt = select(KYCApplicationDB).where(KYCApplicationDB.id == application_id)
     kyc_application = session.scalars(stmt).first()
     return kyc_application
 
 
 def change_application_status(
-    session: SessionDep, application_id: int, new_status: KYCStatus
+    session: SessionDep, application_id: uuid.UUID, new_status: KYCStatus
 ):
     stmt = select(KYCApplicationDB).where(KYCApplicationDB.id == application_id)
     kyc_application = session.scalars(stmt).first()

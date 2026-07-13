@@ -4,6 +4,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import "../styles.css";
 import { type AuthContextType } from "../auth/authProvider";
+import { Toaster } from "@/components/ui/sonner";
 interface RouterContext {
   queryClient: QueryClient
   auth: AuthContextType
@@ -17,7 +18,10 @@ function RootComponent() {
   return (
     <>
       <Header />
-      <Outlet />
+      <main>
+        <Outlet />
+        <Toaster />
+      </main>
       <Footer />
     </>
   );

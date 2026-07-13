@@ -1,18 +1,13 @@
-import type { KYCApplicationSubmit, KYCApplication, KYCStatistics } from "@/types/kyc";
+import type { KYCApplication, KYCApplicationSubmit, KYCStatistics } from "@/types/kyc";
 import api from "./base";
 
 export async function submitKYCApplication(value: KYCApplicationSubmit) {
-  try {
-    const response = await api.post<KYCApplicationSubmit>(
-      "/kyc",
-      value,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error submitting KYC application:", error);
-    throw error;
-  }
+  const response = await api.post<KYCApplicationSubmit>(
+    "/kyc",
+    value,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data;
 }
 
 export async function fetchKYCApplications() {
@@ -25,7 +20,7 @@ export async function fetchKYCApplications() {
   }
 }
 
-export async function fetchKYCApplicationById(id: number) {
+export async function fetchKYCApplicationById(id: string) {
   try {
     const response = await api.get<KYCApplication>(`/kyc/${id}`);
     return response.data;
@@ -35,7 +30,7 @@ export async function fetchKYCApplicationById(id: number) {
   }
 }
 
-export async function decideKYC(id: number, decision: 'approve' | 'reject') {
+export async function decideKYC(id: string, decision: 'approve' | 'reject') {
   try {
     const response = await api.put<KYCApplication>(`/kyc/${id}/${decision}`);
     return response.data;
