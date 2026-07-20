@@ -2,6 +2,14 @@ import { API_PATH } from '@/config/vars';
 import axios from 'axios';
 import { keycloak } from '@/auth/keycloak';
 
+export class HttpError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
+
 const api = axios.create({
   baseURL: API_PATH,
   headers: {
@@ -39,9 +47,9 @@ api.interceptors.response.use(
     if (axios.isAxiosError(error)) {
       if (error.response) {
         if (error.response.data && error.response.data.detail) {
-          throw new Error(`${error.response.data.detail}`);
+          throw new HttpError(error.response.status, `${error.response.data.detail}`);
         }
-        throw new Error(`${error.response.status} - ${error.response.statusText}`);
+        throw new HttpError(error.response.status, `${error.response.status} - ${error.response.statusText}`);
       }
       if (error.request) {
         throw new Error('No response received from the server.');

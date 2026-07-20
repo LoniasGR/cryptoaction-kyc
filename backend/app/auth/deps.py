@@ -52,6 +52,13 @@ def validate_user(security_scopes: SecurityScopes, auth_header: str = Security(o
     return payload
 
 
+def is_user_admin(user_payload: dict) -> bool:
+    client_roles = set(
+        user_payload.get("resource_access", {}).get(client_id, {}).get("roles", [])
+    )
+    return "Admin" in client_roles
+
+
 userDependency = Annotated[
     dict,
     Security(

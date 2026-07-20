@@ -28,6 +28,9 @@ class KYCApplicationDB(SQLBase):
         onupdate=datetime.now,
     )
     submittedAt: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expiringAt: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     def __repr__(self) -> str:
-        return f"KYCApplication(id={self.id}, fullName='{self.fullName}', email='{self.email}', status='{self.status}', idFileHash='{self.idFileHash}', createdAt='{self.createdAt}', updatedAt='{self.updatedAt}', submittedAt='{self.submittedAt}')"
+        return f"KYCApplication(id={self.id}, fullName='{self.fullName}', email='{self.email}', status='{self.status}', idFileHash='{self.idFileHash}', createdAt='{self.createdAt}', updatedAt='{self.updatedAt}', submittedAt='{self.submittedAt}', expiringAt='{self.expiringAt}')"

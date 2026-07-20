@@ -22,6 +22,7 @@ class KYCApplicationSummary(KYCApplicationCreate):
     id: uuid.UUID
     status: KYCStatus
     submittedAt: datetime
+    expiringAt: datetime | None = None
 
 
 class KYCApplicationStatistics(BaseModel):

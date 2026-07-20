@@ -5,3 +5,5 @@ export const KEYCLOAK_DATA = {
   realm: 'cryptoaction',
   clientId: 'cryptoaction-frontend',
 };
+
+export const backendClientId = 'cryptoaction-backend';

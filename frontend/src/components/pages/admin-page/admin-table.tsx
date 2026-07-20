@@ -60,17 +60,15 @@ function AdminTable() {
                 id: "actions",
                 header: "Actions",
                 cell: (info) =>
-                    info.row.original.status === "pending" ? (
                     <Button variant="link">
                         <Link
                             to="/admin/$applicationId"
                             params={{
                                 applicationId: info.row.original.id,
                             }}>
-                            Review
+                            {info.row.original.status === "pending" ? "Review" : "View"}
                         </Link>
                     </Button>
-                ) : null,
             }),
         ],
         [columnHelper],
@@ -132,7 +130,7 @@ function AdminTable() {
                         ))
                     )}
                 </TableBody>
-                <TableFooter>
+                {/* <TableFooter>
                     {table.getFooterGroups().map((footerGroup) => (
                         <TableRow key={footerGroup.id}>
                             {footerGroup.headers.map((header) => (
@@ -147,7 +145,7 @@ function AdminTable() {
                             ))}
                         </TableRow>
                     ))}
-                </TableFooter>
+                </TableFooter> */}
             </Table>
             <div className="flex items-center justify-end space-x-2 py-4">
                 <Button

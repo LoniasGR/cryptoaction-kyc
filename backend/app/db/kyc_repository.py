@@ -1,8 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import func, select
 
+from ..config import EXPIRATION_TIME
 from ..kyc.kyc import KYCApplicationCreate, KYCStatus
 from .db import SessionDep
 from .models import KYCApplicationDB
@@ -39,7 +40,11 @@ def change_application_status(
     kyc_application = session.scalars(stmt).first()
     if kyc_application is None:
         return None
+    if kyc_application.status == KYCStatus.APPROVED:
+        kyc_application.expiringAt = None
     kyc_application.status = new_status
+    if new_status == KYCStatus.APPROVED:
+        kyc_application.expiringAt = datetime.now() + timedelta(seconds=EXPIRATION_TIME)
     session.commit()
     return kyc_application
 

@@ -2,8 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import ReactDOM from 'react-dom/client';
 import { AuthProvider, useAuth } from './auth/authProvider';
-import { Spinner } from './components/ui/spinner';
 import { routeTree } from './routeTree.gen';
+import { LoadingPage } from './components/pages/loading-page';
 
 const queryClient = new QueryClient();
 
@@ -23,7 +23,7 @@ declare module '@tanstack/react-router' {
 function AppWithAuth() {
   const auth = useAuth();
   if (!auth.isInitialized) {
-    return <div className='flex justify-center items-center h-screen'><Spinner className="size-10" /></div>;
+    return <LoadingPage />;
   }
   return (<RouterProvider router={router} context={{ queryClient, auth }} />);
 }

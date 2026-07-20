@@ -1,6 +1,7 @@
   import { createContext, useContext, useEffect, useState } from 'react';
   import { keycloak } from '@/auth/keycloak';
   import { type KeycloakLoginOptions, type KeycloakUserInfo } from 'keycloak-js';
+import { backendClientId } from '#/config/vars';
 
   export type AuthContextType = {
     isAuthenticated: boolean;
@@ -28,14 +29,9 @@
           setIsAuthenticated(authenticated);
           if (authenticated) {
             setToken(keycloak.token);
-            // This is the missing part:
             const profile = await keycloak.loadUserInfo();
             setUserInfo(profile);
             setIsAuthenticated(true);
-            console.log('Authenticated:', authenticated);
-            console.log('Token:', keycloak.tokenParsed);
-            console.log('User Info:', keycloak.userInfo);
-            // You can store the token, refreshToken, and userInfo in your state or context here
           }
         }).catch((error) => {
           console.error('Keycloak initialization error:', error);
@@ -43,7 +39,7 @@
     }, []);
 
     const hasRole = (role: string) => {
-      return keycloak.hasResourceRole(role);
+      return keycloak.hasResourceRole(role, backendClientId);
     };
 
     return (

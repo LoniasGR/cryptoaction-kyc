@@ -8,10 +8,10 @@ import { useParams, useNavigate, Link } from '@tanstack/react-router';
 
 
 function ApplicationComponent() {
-  const applicationId = useParams({from: "/_authenticated/admin/$applicationId"}).applicationId;
+  const applicationId = useParams({ from: "/_authenticated/admin/$applicationId" }).applicationId;
   const navigator = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.kycApplication(applicationId),
     queryFn: () => fetchKYCApplicationById(applicationId),
@@ -47,8 +47,8 @@ function ApplicationComponent() {
           </CardHeader>
           <CardContent className="mt-5 flex flex-col gap-2">
             <p className="font-heading text-base font-medium pb-2">Documents</p>
-            <Button variant="default" className="w-full" 
-            onClick={() => window.open(generateFileUrl(data!.idFileHash), '_blank')}>View ID File</Button>
+            <Button variant="default" className="w-full"
+              onClick={() => window.open(generateFileUrl(data!.idFileHash), '_blank')}>View ID File</Button>
           </CardContent>
         </Card>
         <Card className="min-w-xs max-w-md lg:min-w-3xs sm:min-w-xs">

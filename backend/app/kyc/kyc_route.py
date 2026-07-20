@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.exc import IntegrityError
-from ..auth.deps import userDependency, adminDependency
+from ..auth.deps import is_user_admin, userDependency, adminDependency
 from ..ipfs.client import add_file
 
 from ..db.db import SessionDep
@@ -46,7 +46,8 @@ async def create_kyc_application_route(
         )
     try:
         return create_kyc_application(session, kyc, user_id)
-    except IntegrityError:
+    except IntegrityError as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Application for user {user_id} already exists",
@@ -102,8 +103,13 @@ def get_kyc_statistics(session: SessionDep, admin: adminDependency):
 
 @router.get("/{application_id}", response_model=KYCApplicationSummary)
 def get_kyc_application(
-    session: SessionDep, application_id: uuid.UUID, admin: adminDependency
+    session: SessionDep, application_id: uuid.UUID, user: userDependency
 ):
+    if str(user.get("sub")) != str(application_id) and not is_user_admin(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"User sub {user.get('sub')} is not authorized to access this  {application_id}",
+        )
     kyc_application = get_single_application(session, application_id)
     if kyc_application is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
@@ -117,11 +123,6 @@ def approve_kyc_application(
     kyc_application_old = get_single_application(session, application_id)
     if kyc_application_old is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
-    if kyc_application_old.status != KYCStatus.PENDING:
-        raise HTTPException(
-            status_code=400,
-            detail=f"KYC application cannot be approved. Current status: {kyc_application_old.status}",
-        )
     change_application_status(session, application_id, KYCStatus.APPROVED)
     return {"message": "KYC application approved"}
 
@@ -133,10 +134,5 @@ def reject_kyc_application(
     kyc_application_old = get_single_application(session, application_id)
     if kyc_application_old is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
-    if kyc_application_old.status != KYCStatus.PENDING:
-        raise HTTPException(
-            status_code=400,
-            detail=f"KYC application cannot be rejected. Current status: {kyc_application_old.status}",
-        )
     change_application_status(session, application_id, KYCStatus.REJECTED)
     return {"message": "KYC application rejected"}

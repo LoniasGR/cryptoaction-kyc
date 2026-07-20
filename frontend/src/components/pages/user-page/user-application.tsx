@@ -1,5 +1,6 @@
+import { queryKeys } from "#/config/queryKeys";
 import { submitKYCApplication } from "@/api/kyc";
-import { KYCApplicationSubmitSchema } from "@/types/kyc";
+import { useAuth } from "@/auth/authProvider";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -11,19 +12,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAppForm } from "@/hooks/form";
-import { useMutation } from "@tanstack/react-query";
-import { FieldGroup } from "../ui/field";
-import { useAuth } from "@/auth/authProvider";
+import { KYCApplicationSubmitSchema } from "@/types/kyc";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { FieldGroup } from "../../ui/field";
 
-export function UserPage() {
+export function UserApplication() {
   const auth = useAuth();
-  console.log(auth.userInfo);
+  const queryClient = useQueryClient();
   const submit = useMutation({
     mutationFn: submitKYCApplication,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("KYC application submitted successfully!", { duration: 5000 });
-    },
+      await queryClient.invalidateQueries({ queryKey: queryKeys.kycApplication(auth.userInfo!.sub) });
+    }, 
   });
   const form = useAppForm({
     defaultValues: {
