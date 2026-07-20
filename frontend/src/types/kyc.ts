@@ -19,6 +19,7 @@ export const KYCApplicationSchema = KYCApplicationBaseSchema.extend({
   idFileHash: z.string(),
   status: KYCStatusSchema,
   submittedAt: z.date(),
+  expiringAt: z.date().nullable().optional(),
 });
 
 export const KYCStatisticsSchema = z.object({
