@@ -1,4 +1,5 @@
 import os
+
 from fastapi.security import OAuth2AuthorizationCodeBearer
 
 OIDC_URL = os.environ.get("OIDC_URL", "http://localhost:8080")

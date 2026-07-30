@@ -1,10 +1,8 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 from sqlalchemy import DateTime, Uuid, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-from ..kyc.kyc import KYCStatus
 
 
 class SQLBase(DeclarativeBase):
@@ -17,8 +15,8 @@ class KYCApplicationDB(SQLBase):
     id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
     fullName: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column()
-    status: Mapped[KYCStatus] = mapped_column()
     idFileHash: Mapped[str] = mapped_column()
+    blockchainAddress: Mapped[str] = mapped_column(index=True, unique=True)
     createdAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -33,4 +31,4 @@ class KYCApplicationDB(SQLBase):
     )
 
     def __repr__(self) -> str:
-        return f"KYCApplication(id={self.id}, fullName='{self.fullName}', email='{self.email}', status='{self.status}', idFileHash='{self.idFileHash}', createdAt='{self.createdAt}', updatedAt='{self.updatedAt}', submittedAt='{self.submittedAt}', expiringAt='{self.expiringAt}')"
+        return f"KYCApplication(id={self.id}, fullName='{self.fullName}', email='{self.email}', idFileHash='{self.idFileHash}', createdAt='{self.createdAt}', updatedAt='{self.updatedAt}', submittedAt='{self.submittedAt}', expiringAt='{self.expiringAt}')"

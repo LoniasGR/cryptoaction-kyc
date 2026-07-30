@@ -21,11 +21,13 @@ function Home() {
   return (
     <Card className="mx-auto mt-20 flex flex-col items-center justify-center gap-4 max-w-200 self-center">
       <h1 className="text-4xl font-bold mb-15">Welcome to CryptoAction</h1>
+      { hasRole('User') && (
       <Button onClick={() => {
         navigate({ to: '/user' });
       }}>
         Apply for KYC
       </Button>
+      )}
       { hasRole('Admin') && (
         <Button onClick={() => {
           navigate({ to: '/admin' });

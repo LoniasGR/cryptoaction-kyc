@@ -1,9 +1,11 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from typing_extensions import Annotated
-from .models import SQLBase
+
 from ..config import DB_URL
+from .models import SQLBase
 
 engine = create_engine(DB_URL, connect_args={"connect_timeout": 10}, echo=True)
 

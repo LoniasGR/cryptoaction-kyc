@@ -12,6 +12,7 @@ export const KYCApplicationSubmitSchema = KYCApplicationBaseSchema.extend({
     .refine((file) => file.size <= 10 * 1024 * 1024, {
       message: "File size must be less than 10MB",
     }),
+  blockchainAddress: z.string().startsWith("0x", { message: "Blockchain address must start with '0x'" }),
 });
 
 export const KYCApplicationSchema = KYCApplicationBaseSchema.extend({
@@ -19,6 +20,7 @@ export const KYCApplicationSchema = KYCApplicationBaseSchema.extend({
   idFileHash: z.string(),
   status: KYCStatusSchema,
   submittedAt: z.date(),
+  blockchainAddress: z.string(),
   expiringAt: z.date().nullable().optional(),
 });
 

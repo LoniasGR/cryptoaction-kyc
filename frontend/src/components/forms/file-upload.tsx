@@ -14,7 +14,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useFieldContext } from "@/hooks/form-context.tsx";
+import { useFieldContext } from "#/forms/form-context";
 import { FileTextIcon, XIcon } from "lucide-react";
 
 export function FileUpload({

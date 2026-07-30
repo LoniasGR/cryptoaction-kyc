@@ -1,6 +1,7 @@
 import httpx
 import jwt
 from cachetools import TTLCache, cached
+
 from .client_config import OpenIdConnectUrl
 
 CACHE_TTL = 600  # seconds

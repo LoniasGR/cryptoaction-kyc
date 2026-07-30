@@ -1,16 +1,16 @@
 import logging
 from contextlib import asynccontextmanager
-from typing import Annotated
 
-from fastapi import FastAPI, Security
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .auth.client_config import CLIENT_ID
-from .auth.deps import validate_user
 from .db.db import create_db_and_tables
 from .ipfs import file_route
 from .ipfs.client import get_ipfs_client
 from .kyc.kyc_route import router as kyc_router
+from .web3 import init_web3
+from .web3.contract import init_contract
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ logging.basicConfig(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
+    init_contract(init_web3())
     await get_ipfs_client()
     yield
 
@@ -50,16 +51,3 @@ app.include_router(file_route.router)
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
-
-@app.get("/test")
-async def test(
-    user: Annotated[
-        dict,
-        Security(
-            validate_user,
-            scopes=["user"],
-        ),
-    ],
-):
-    return user

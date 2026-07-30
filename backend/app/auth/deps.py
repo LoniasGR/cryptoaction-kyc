@@ -1,13 +1,15 @@
-from typing_extensions import Annotated
+from typing import Annotated
 
+import jwt
 from fastapi import HTTPException, Security, status
 from fastapi.security import SecurityScopes
-import jwt
-from .client_config import oidc, CLIENT_ID as client_id
+
+from .client_config import CLIENT_ID as client_id
+from .client_config import oidc
 from .discovery import (
+    create_pyjwt_client_from_oidc_spec,
     get_discovery_configuration,
     get_signing_algos,
-    create_pyjwt_client_from_oidc_spec,
 )
 
 

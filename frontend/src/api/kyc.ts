@@ -1,7 +1,7 @@
 import type { KYCApplication, KYCApplicationSubmit, KYCStatistics } from "@/types/kyc";
 import api from "./base";
 
-export async function submitKYCApplication(value: KYCApplicationSubmit) {
+export async function submitKYCApplicationAPI(value: KYCApplicationSubmit) {
   const response = await api.post<KYCApplicationSubmit>(
     "/kyc",
     value,

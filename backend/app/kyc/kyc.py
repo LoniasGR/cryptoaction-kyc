@@ -1,26 +1,27 @@
-from datetime import datetime
 import uuid
-
-from pydantic import BaseModel
+from datetime import datetime
 from enum import Enum
 
+from pydantic import BaseModel
 
-class KYCStatus(str, Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-    DRAFT = "draft"
+
+class KYCStatus(Enum):
+    UNKNOWN = 0
+    APPROVED = 1
+    REJECTED = 2
+    PENDING = 3
 
 
 class KYCApplicationCreate(BaseModel):
     fullName: str
     email: str
     idFileHash: str
+    blockchainAddress: str
 
 
 class KYCApplicationSummary(KYCApplicationCreate):
     id: uuid.UUID
-    status: KYCStatus
+    status: str
     submittedAt: datetime
     expiringAt: datetime | None = None
 

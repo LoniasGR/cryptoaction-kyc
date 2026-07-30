@@ -1,3 +1,4 @@
+import { Badge } from '#/components/ui/badge';
 import { generateFileUrl } from '@/api/file';
 import { decideKYC, fetchKYCApplicationById } from '@/api/kyc';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { queryKeys } from '@/config/queryKeys';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from '@tanstack/react-router';
+import { buttonVariants } from "@/components/ui/button";
 
 
 function ApplicationComponent() {
@@ -37,12 +39,13 @@ function ApplicationComponent() {
       <div className="pt-10 justify-center flex sm:flex-col md:flex-row gap-4">
         <Card className="min-w-xs max-w-md lg:min-w-lg sm:min-w-sm">
           <CardAction>
-            <Button variant="secondary" className="ml-5"><Link to="/admin">Back</Link></Button>
+             <Badge className="ml-7">{data?.status}</Badge>
           </CardAction>
           <CardHeader className="text-center">
             <CardTitle>Application Details - {data?.id}</CardTitle>
             <CardDescription>
-              <p>Applicant: {data!.fullName} | Submitted at: {new Date(data!.submittedAt).toLocaleDateString()} {new Date(data!.submittedAt).toLocaleTimeString()}</p>
+              <p><span className="font-bold">Applicant:</span> {data!.fullName} | <span className="font-bold">Submitted at:</span> {new Date(data!.submittedAt).toLocaleDateString()} {new Date(data!.submittedAt).toLocaleTimeString()}</p>
+              <p className="mt-5"><span className="font-bold">Wallet Address:</span> {data!.blockchainAddress}</p>
             </CardDescription>
           </CardHeader>
           <CardContent className="mt-5 flex flex-col gap-2">
@@ -55,9 +58,11 @@ function ApplicationComponent() {
           <CardHeader className="text-center">
             <CardTitle>Decision Panel</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2">
+          <CardContent className="flex flex-col gap-2 min-h-35 lg:min-h-50">
             <Button variant="default" onClick={() => mutation.mutate('approve')}>Approve</Button>
             <Button variant="destructive" onClick={() => mutation.mutate('reject')}>Reject</Button>
+            <Link to="/admin" className={buttonVariants({ variant: "secondary", className: "mt-auto" })}>Back</Link>
+
           </CardContent>
         </Card>
       </div>

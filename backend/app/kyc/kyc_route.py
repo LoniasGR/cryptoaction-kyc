@@ -3,15 +3,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.exc import IntegrityError
-from ..auth.deps import is_user_admin, userDependency, adminDependency
-from ..ipfs.client import add_file
 
+from ..auth.deps import adminDependency, is_user_admin, userDependency
 from ..db.db import SessionDep
 from ..db.kyc_repository import (
-    change_application_status,
     create_kyc_application,
+    get_all_applications_count_db,
+)
+from ..ipfs.client import add_file
+from ..kyc.service import (
+    change_application_status,
     get_all_applications,
-    get_all_applications_count,
     get_all_applications_count_by_status,
     get_single_application,
 )
@@ -32,12 +34,20 @@ async def create_kyc_application_route(
     idFile: Annotated[UploadFile, File()],
     fullName: Annotated[str, Form()],
     email: Annotated[str, Form()],
+    blockchainAddress: Annotated[str, Form()],
 ):
+    if is_user_admin(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin users cannot create KYC applications",
+        )
+
     id_hash = await add_file(idFile.file.read())
     kyc = KYCApplicationCreate(
         fullName=fullName,
         email=email,
         idFileHash=id_hash,
+        blockchainAddress=blockchainAddress,
     )
     user_id = user.get("sub")
     if not user_id:
@@ -47,49 +57,37 @@ async def create_kyc_application_route(
     try:
         return create_kyc_application(session, kyc, user_id)
     except IntegrityError as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Application for user {user_id} already exists",
         )
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred while creating the KYC application: {str(e)}",
+            detail=f"An error occurred while creating the KYC application: {e}",
         )
 
 
 @router.get("", response_model=list[KYCApplicationSummary])
 def get_kyc_applications(session: SessionDep, admin: adminDependency):
-    kyc_applications = get_all_applications(session)
-    kyc_list: list[KYCApplicationSummary] = []
-    for kyc in kyc_applications:
-        kyc_list.append(KYCApplicationSummary.model_validate(kyc.__dict__))
-    return kyc_list
+    return get_all_applications(session)
 
 
 @router.get("/statistics", response_model=KYCApplicationStatistics)
 def get_kyc_statistics(session: SessionDep, admin: adminDependency):
-    total_application = get_all_applications_count(session)
+    total_application = get_all_applications_count_db(session)
     if total_application is None:
         total_application = 0
 
-    pending_applications = get_all_applications_count_by_status(
-        session, KYCStatus.PENDING
-    )
+    pending_applications = get_all_applications_count_by_status(KYCStatus.PENDING)
     if pending_applications is None:
         pending_applications = 0
 
-    approved_applications = get_all_applications_count_by_status(
-        session, KYCStatus.APPROVED
-    )
+    approved_applications = get_all_applications_count_by_status(KYCStatus.APPROVED)
     if approved_applications is None:
         approved_applications = 0
 
-    rejected_applications = get_all_applications_count_by_status(
-        session, KYCStatus.REJECTED
-    )
+    rejected_applications = get_all_applications_count_by_status(KYCStatus.REJECTED)
     if rejected_applications is None:
         rejected_applications = 0
 
@@ -110,10 +108,8 @@ def get_kyc_application(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"User sub {user.get('sub')} is not authorized to access this  {application_id}",
         )
-    kyc_application = get_single_application(session, application_id)
-    if kyc_application is None:
-        raise HTTPException(status_code=404, detail="KYC application not found")
-    return KYCApplicationSummary.model_validate(kyc_application.__dict__)
+    app = get_single_application(session, application_id)
+    return app
 
 
 @router.put("/{application_id}/approve")

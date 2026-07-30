@@ -1,14 +1,15 @@
+import { AuthProvider, useAuth } from '@/auth/authProvider';
+import { LoadingPage } from '@/components/pages/loading-page';
+import { useWeb3, Web3Provider } from '@/web3/web3-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { createRouter, RouterProvider } from '@tanstack/react-router';
 import ReactDOM from 'react-dom/client';
-import { AuthProvider, useAuth } from './auth/authProvider';
 import { routeTree } from './routeTree.gen';
-import { LoadingPage } from './components/pages/loading-page';
 
 const queryClient = new QueryClient();
 
 const router = createRouter({
-  context: { queryClient, auth: undefined! },
+  context: { queryClient, auth: undefined!, web3: undefined! },
   routeTree,
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -22,10 +23,11 @@ declare module '@tanstack/react-router' {
 
 function AppWithAuth() {
   const auth = useAuth();
+  const web3 = useWeb3();
   if (!auth.isInitialized) {
     return <LoadingPage />;
   }
-  return (<RouterProvider router={router} context={{ queryClient, auth }} />);
+  return (<RouterProvider router={router} context={{ queryClient, auth, web3 }} />);
 }
 
 const rootElement = document.getElementById('app')!;
@@ -34,7 +36,9 @@ if (!rootElement.innerHTML) {
   root.render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppWithAuth />
+        <Web3Provider>
+          <AppWithAuth />
+        </Web3Provider>
       </AuthProvider>
     </QueryClientProvider>
   );
