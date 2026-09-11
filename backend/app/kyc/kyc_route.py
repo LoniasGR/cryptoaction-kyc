@@ -56,7 +56,7 @@ async def create_kyc_application_route(
         )
     try:
         return create_kyc_application(session, kyc, user_id)
-    except IntegrityError as e:
+    except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Application for user {user_id} already exists",

@@ -16,68 +16,67 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
     createColumnHelper,
+    createPaginatedRowModel,
     flexRender,
-    getCoreRowModel,
-    getPaginationRowModel,
-    useReactTable,
+    rowPaginationFeature,
+    tableFeatures,
+    useTable,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
 
 function AdminTable() {
     const query = useQuery({
         queryKey: queryKeys.kycApplications,
         queryFn: fetchKYCApplications,
     });
-    const columnHelper = createColumnHelper<KYCApplication>();
+    const features = tableFeatures({
+        rowPaginationFeature,
+        paginatedRowModel: createPaginatedRowModel(),
+    });
+    const columnHelper = createColumnHelper<typeof features, KYCApplication>();
 
-    const defaultColumns = useMemo(
-        () => [
-            columnHelper.accessor("id", {
-                header: "ID",
-                cell: (info) => info.getValue() ?? "-",
-                footer: (info) => info.column.id,
-            }),
-            columnHelper.accessor("fullName", {
-                header: "Full Name",
-                cell: (info) => info.getValue() ?? "-",
-                footer: (info) => info.column.id,
-            }),
-            columnHelper.accessor("status", {
-                header: "Status",
-                cell: (info) => <ApplicationStatusBadge status={info.getValue()} />,
-                footer: (info) => info.column.id,
-            }),
-            columnHelper.accessor("submittedAt", {
-                header: "Submitted At",
-                cell: (props) => {
-                    const submittedAt = props.getValue();
-                    return <span>{new Date(submittedAt).toLocaleDateString()} {new Date(submittedAt).toLocaleTimeString()}</span>;
-                },
-                footer: (info) => info.column.id,
-            }),
-            columnHelper.display({
-                id: "actions",
-                header: "Actions",
-                cell: (info) =>
-                    <Button variant="link">
-                        <Link
-                            to="/admin/$applicationId"
-                            params={{
-                                applicationId: info.row.original.id,
-                            }}>
-                            {info.row.original.status === "PENDING" ? "Review" : "View"}
-                        </Link>
-                    </Button>
-            }),
-        ],
-        [columnHelper],
-    );
-
-    const table = useReactTable({
+    const defaultColumns = columnHelper.columns([
+        columnHelper.accessor("id", {
+            header: "ID",
+            cell: (info) => info.getValue() ?? "-",
+            footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor("fullName", {
+            header: "Full Name",
+            cell: (info) => info.getValue() ?? "-",
+            footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor("status", {
+            header: "Status",
+            cell: (info) => <ApplicationStatusBadge status={info.getValue()} />,
+            footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor("submittedAt", {
+            header: "Submitted At",
+            cell: (props) => {
+                const submittedAt = props.getValue();
+                return <span>{new Date(submittedAt).toLocaleDateString()} {new Date(submittedAt).toLocaleTimeString()}</span>;
+            },
+            footer: (info) => info.column.id,
+        }),
+        columnHelper.display({
+            id: "actions",
+            header: "Actions",
+            cell: (info) =>
+                <Button variant="link">
+                    <Link
+                        to="/admin/$applicationId"
+                        params={{
+                            applicationId: info.row.original.id,
+                        }}>
+                        {info.row.original.status === "PENDING" ? "Review" : "View"}
+                    </Link>
+                </Button>
+        }),
+    ]);
+    const table = useTable({
+        features: features,
         columns: defaultColumns,
         data: query.data ?? [],
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
     });
 
     return (
@@ -120,7 +119,7 @@ function AdminTable() {
                     ) : (
                         table.getRowModel().rows.map((row) => (
                             <TableRow key={row.id}>
-                                {row.getVisibleCells().map((cell) => (
+                                {row.getAllCells().map((cell) => (
                                     <TableCell key={cell.id}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </TableCell>
