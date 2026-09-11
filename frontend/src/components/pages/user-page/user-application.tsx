@@ -1,5 +1,5 @@
-import { queryKeys } from "#/config/queryKeys";
-import { useAppForm } from "#/forms/form";
+import { queryKeys } from "@/config/queryKeys";
+import { useAppForm } from "@/forms/form";
 import { useAuth } from "@/auth/authProvider";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,7 +27,7 @@ export function UserApplication() {
     onSuccess: async () => {
       toast.success("KYC application submitted successfully!", { duration: 5000 });
       await queryClient.invalidateQueries({ queryKey: queryKeys.kycApplication(auth.userInfo!.sub) });
-    }, 
+    },
   });
   const form = useAppForm({
     defaultValues: {
@@ -47,7 +47,7 @@ export function UserApplication() {
           }
         };
       }
-      submit.mutate({ ...value, idFile: value.idFile },  {
+      submit.mutate({ ...value, idFile: value.idFile }, {
         onError: (error) => {
           toast.error("Failed to submit KYC application: " + error.message, { duration: 5000 });
         }

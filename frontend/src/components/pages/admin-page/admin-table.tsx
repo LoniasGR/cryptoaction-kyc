@@ -1,14 +1,14 @@
 import { fetchKYCApplications } from "@/api/kyc";
+import { ApplicationStatusBadge } from "@/components/application-status-badge";
 import { Button } from "@/components/ui/button";
 import {
     Table,
     TableBody,
     TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
-    TableRow,
+    TableRow
 } from "@/components/ui/table";
 import { queryKeys } from "@/config/queryKeys";
 import { type KYCApplication } from "@/types/kyc";
@@ -21,7 +21,6 @@ import {
     getPaginationRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
 import { useMemo } from "react";
 
 function AdminTable() {
@@ -45,7 +44,7 @@ function AdminTable() {
             }),
             columnHelper.accessor("status", {
                 header: "Status",
-                cell: (info) => <Badge>{info.getValue() ?? "-"}</Badge>,
+                cell: (info) => <ApplicationStatusBadge status={info.getValue()} />,
                 footer: (info) => info.column.id,
             }),
             columnHelper.accessor("submittedAt", {
@@ -66,7 +65,7 @@ function AdminTable() {
                             params={{
                                 applicationId: info.row.original.id,
                             }}>
-                            {info.row.original.status === "pending" ? "Review" : "View"}
+                            {info.row.original.status === "PENDING" ? "Review" : "View"}
                         </Link>
                     </Button>
             }),

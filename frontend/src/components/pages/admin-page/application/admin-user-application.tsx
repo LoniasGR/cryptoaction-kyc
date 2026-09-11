@@ -1,18 +1,22 @@
-import { Badge } from '#/components/ui/badge';
+import { ApplicationStatusBadge } from '@/components/application-status-badge';
 import { generateFileUrl } from '@/api/file';
 import { decideKYC, fetchKYCApplicationById } from '@/api/kyc';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { queryKeys } from '@/config/queryKeys';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from '@tanstack/react-router';
 import { buttonVariants } from "@/components/ui/button";
-
+import { useState } from 'react';
+// Pending decision describes the button that the admin has clicked but has not yet confirmed.
+type PendingDecision = 'approve' | 'reject' | null;
 
 function ApplicationComponent() {
   const applicationId = useParams({ from: "/_authenticated/admin/$applicationId" }).applicationId;
   const navigator = useNavigate();
   const queryClient = useQueryClient();
+  const [pendingDecision, setPendingDecision] = useState<PendingDecision>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.kycApplication(applicationId),
@@ -24,6 +28,7 @@ function ApplicationComponent() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.kycApplication(applicationId) });
       navigator({ to: '/admin' });
     },
+    onSettled: () => setPendingDecision(null),
   });
 
   if (isLoading) {
@@ -39,7 +44,7 @@ function ApplicationComponent() {
       <div className="pt-10 justify-center flex sm:flex-col md:flex-row gap-4">
         <Card className="min-w-xs max-w-md lg:min-w-lg sm:min-w-sm">
           <CardAction>
-             <Badge className="ml-7">{data?.status}</Badge>
+            <ApplicationStatusBadge className="ml-7" status={data?.status} />
           </CardAction>
           <CardHeader className="text-center">
             <CardTitle>Application Details - {data?.id}</CardTitle>
@@ -59,13 +64,27 @@ function ApplicationComponent() {
             <CardTitle>Decision Panel</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 min-h-35 lg:min-h-50">
-            <Button variant="default" onClick={() => mutation.mutate('approve')}>Approve</Button>
-            <Button variant="destructive" onClick={() => mutation.mutate('reject')}>Reject</Button>
+            <Button disabled={data?.status.toLowerCase() === 'approved'} variant="default" onClick={() => setPendingDecision('approve')}>Approve</Button>
+            <Button disabled={data?.status.toLowerCase() === 'rejected'} variant="destructive" onClick={() => setPendingDecision('reject')}>Reject</Button>
             <Link to="/admin" className={buttonVariants({ variant: "secondary", className: "mt-auto" })}>Back</Link>
 
           </CardContent>
         </Card>
       </div>
+      <ConfirmDialog
+        open={pendingDecision !== null}
+        onOpenChange={(open) => !open && setPendingDecision(null)}
+        title={pendingDecision === 'approve' ? 'Approve application?' : 'Reject application?'}
+        description={
+          pendingDecision === 'approve'
+            ? `This will approve the KYC application for ${data?.fullName ?? 'this applicant'}.`
+            : `This will reject the KYC application for ${data?.fullName ?? 'this applicant'}.`
+        }
+        confirmLabel={pendingDecision === 'approve' ? 'Approve' : 'Reject'}
+        confirmVariant={pendingDecision === 'approve' ? 'default' : 'destructive'}
+        isLoading={mutation.isPending}
+        onConfirm={() => pendingDecision && mutation.mutate(pendingDecision)}
+      />
     </div>
   );
 }

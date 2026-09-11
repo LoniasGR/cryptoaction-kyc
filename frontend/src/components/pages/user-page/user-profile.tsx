@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { generateFileUrl } from "@/api/file";
 import { fetchKYCApplicationById } from "@/api/kyc";
 import { useAuth } from "@/auth/authProvider";
+import { ApplicationStatusBadge } from "@/components/application-status-badge";
 import { Button } from "@/components/ui/button";
 import { queryKeys } from "@/config/queryKeys";
 import { useQuery } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ export function UserProfile() {
             <div className="pt-10 justify-center flex sm:flex-col md:flex-row gap-4">
                 <Card className="min-w-xs max-w-md lg:min-w-lg sm:min-w-sm">
                     <CardAction className="pl-5 pt-2">
-                        <Badge>{data?.status}</Badge>
+                        <ApplicationStatusBadge status={data?.status || KYCStatus.PENDING} />
                     </CardAction>
                     <CardHeader className="text-center">
                         <CardTitle className="text-2xl">My Application</CardTitle>
@@ -28,7 +28,7 @@ export function UserProfile() {
                             <p><span className="font-semibold">Name:</span> {data!.fullName}</p>
                             <p><span className="font-semibold">Email:</span> {data!.email}</p>
                             <p><span className="font-semibold">Submitted on:</span> {new Date(data!.submittedAt).toLocaleDateString()} {new Date(data!.submittedAt).toLocaleTimeString()}</p>
-                            {data?.status === "approved" && (
+                            {data?.status === "APPROVED" && (
                                 <p><span className="font-semibold">Expiring at:</span> {new Date(data!.expiringAt).toLocaleDateString()} {new Date(data!.expiringAt).toLocaleTimeString()}</p>
                             )}
                         </CardDescription>
