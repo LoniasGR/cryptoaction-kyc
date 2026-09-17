@@ -16,7 +16,7 @@ contract KYCTest is Test {
     function test_applyForKYC() public {
         address user = address(0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199);
         vm.prank(user);
-        kyc.createKYCApplication(user);
+        kyc.createKYCApplication(user, bytes32(0));
         vm.prank(user);
         require(
             kyc.getKYCStatus(user) == KYCStatus.Pending,
@@ -27,7 +27,7 @@ contract KYCTest is Test {
     function test_decideKYC() public {
         address user = address(0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199);
         vm.prank(user);
-        kyc.createKYCApplication(user);
+        kyc.createKYCApplication(user, bytes32(0));
         address admin = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
         vm.prank(admin);
         kyc.decideKYC(user, true);
@@ -41,7 +41,7 @@ contract KYCTest is Test {
     function test_getAllKYCApplications() public {
         address user = address(0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199);
         vm.prank(user);
-        kyc.createKYCApplication(user);
+        kyc.createKYCApplication(user, bytes32(0));
         address admin = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
         vm.prank(admin);
         kyc.decideKYC(user, true);
@@ -58,7 +58,7 @@ contract KYCTest is Test {
     function test_getKYCStatus() public {
         address user = address(0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199);
         vm.prank(user);
-        kyc.createKYCApplication(user);
+        kyc.createKYCApplication(user, bytes32(0));
         address admin = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
         vm.prank(admin);
         kyc.decideKYC(user, true);

@@ -1,11 +1,7 @@
 abi = [
     {
         "inputs": [
-            {
-                "internalType": "address[]",
-                "name": "_kycEvaluators",
-                "type": "address[]",
-            }
+            {"internalType": "address[]", "name": "_kycEvaluators", "type": "address[]"}
         ],
         "stateMutability": "nonpayable",
         "type": "constructor",
@@ -37,7 +33,10 @@ abi = [
         "type": "function",
     },
     {
-        "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+        "inputs": [
+            {"internalType": "address", "name": "user", "type": "address"},
+            {"internalType": "bytes32", "name": "digest", "type": "bytes32"},
+        ],
         "name": "createKYCApplication",
         "outputs": [],
         "stateMutability": "nonpayable",
@@ -60,6 +59,7 @@ abi = [
             {
                 "components": [
                     {"internalType": "address", "name": "user", "type": "address"},
+                    {"internalType": "bytes32", "name": "digest", "type": "bytes32"},
                     {
                         "internalType": "enum KYCStatus",
                         "name": "status",
@@ -85,6 +85,33 @@ abi = [
         ],
         "name": "getAllKycByStatus",
         "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}],
+        "stateMutability": "view",
+        "type": "function",
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+        "name": "getKYCApplication",
+        "outputs": [
+            {
+                "components": [
+                    {"internalType": "address", "name": "user", "type": "address"},
+                    {"internalType": "bytes32", "name": "digest", "type": "bytes32"},
+                    {
+                        "internalType": "enum KYCStatus",
+                        "name": "status",
+                        "type": "uint8",
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "expirationDate",
+                        "type": "uint256",
+                    },
+                ],
+                "internalType": "struct Applicant",
+                "name": "",
+                "type": "tuple",
+            }
+        ],
         "stateMutability": "view",
         "type": "function",
     },

@@ -12,10 +12,11 @@ from ..db.models import KYCApplicationDB
 from ..web3.contract import (
     getAllApplicationsByStatus,
     getAllKycApplications,
+    getKycApplication,
     getKycStatus,
     updateKycStatus,
 )
-from .kyc import KYCApplicationSummary, KYCStatus
+from .kyc import KYCApplicationCreate, KYCApplicationSummary, KYCStatus
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +51,22 @@ def get_all_applications(session: SessionDep):
     applications = getAllKycApplications()
     complete_applications = []
     for app in applications:
-        logger.error(f"app: {app}")
         stmt = select(KYCApplicationDB).where(
             KYCApplicationDB.blockchainAddress == app[0]
         )
-        kyc_applications = session.scalars(stmt).first()
+        kyc_application = session.scalars(stmt).first()
+        if kyc_application is None:
+            logger.warning(f"KYC application not found for blockchain address {app[0]}")
+            continue
+        kycBase = KYCApplicationCreate.model_validate({**kyc_application.__dict__})
+        verified = kycBase.verify_digest(app[1].hex())
         complete_app = KYCApplicationSummary.model_validate(
-            {**kyc_applications.__dict__, "status": KYCStatus(app[1]).name}
+            {
+                **kyc_application.__dict__,
+                "status": KYCStatus(app[2]).name,
+                "verified": verified,
+                "digest": app[1].hex(),
+            }
         )
         complete_applications.append(complete_app)
     return complete_applications
@@ -71,8 +81,14 @@ def get_single_application(session: SessionDep, application_id: uuid.UUID):
             status_code=status.HTTP_404_NOT_FOUND, detail="KYC application not found"
         )
     user_address = kyc_application.blockchainAddress
-    kyc_status = getKycStatus(user_address)
-    print(f"kyc_blockchain: {KYCStatus(kyc_status)}")
+    application_blockchain = getKycApplication(user_address)
+    kycBase = KYCApplicationCreate.model_validate({**kyc_application.__dict__})
+    verified = kycBase.verify_digest(application_blockchain[1].hex())
     return KYCApplicationSummary.model_validate(
-        {**kyc_application.__dict__, "status": KYCStatus(kyc_status).name}
+        {
+            **kyc_application.__dict__,
+            "status": KYCStatus(application_blockchain[2]).name,
+            "verified": verified,
+            "digest": application_blockchain[1].hex(),
+        }
     )

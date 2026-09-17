@@ -13,6 +13,12 @@ def init_contract(w3):
     )
 
 
+def getKycApplication(user_address):
+    if contract is None:
+        raise ValueError("Smart contract not found. This is an error.")
+    return contract.functions.getKYCApplication(user_address).call()
+
+
 def getAllKycApplications():
     if contract is None:
         raise ValueError("Smart contract not found. This is an error.")

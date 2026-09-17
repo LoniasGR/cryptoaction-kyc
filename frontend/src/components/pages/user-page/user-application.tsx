@@ -28,6 +28,9 @@ export function UserApplication() {
       toast.success("KYC application submitted successfully!", { duration: 5000 });
       await queryClient.invalidateQueries({ queryKey: queryKeys.kycApplication(auth.userInfo!.sub) });
     },
+    onError: (error) => {
+      toast.error("Failed to submit KYC application: " + error.message, { duration: 10000 });
+    }
   });
   const form = useAppForm({
     defaultValues: {
@@ -47,11 +50,7 @@ export function UserApplication() {
           }
         };
       }
-      submit.mutate({ ...value, idFile: value.idFile }, {
-        onError: (error) => {
-          toast.error("Failed to submit KYC application: " + error.message, { duration: 5000 });
-        }
-      });
+      submit.mutate({ ...value, idFile: value.idFile });
     },
   });
 

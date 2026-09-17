@@ -10,6 +10,7 @@ enum KYCStatus {
 
 struct Applicant {
     address user;
+    bytes32 digest;
     KYCStatus status;
     uint256 expirationDate;
 }
@@ -65,28 +66,39 @@ contract KYC {
         return false;
     }
 
-    function createKYCApplication(address user) public {
+    function createKYCApplication(address user, bytes32 digest) public {
         require(
             applicants.data[user].value.user == address(0),
             "KYC application already exists for this user"
         );
-        applicants.insert(user, Applicant(user, KYCStatus.Pending, 0));
+        applicants.insert(user, Applicant(user, digest, KYCStatus.Pending, 0));
     }
 
     function decideKYC(address user, bool isAccepted) public {
         require(
             isKycEvaluator(msg.sender),
-            "Only KYC evaluators can accept KYC"
+            "Only KYC evaluators can evaluate KYC"
         );
-        applicants.insert(
-            user,
-            Applicant(
-                user,
-                isAccepted ? KYCStatus.Accepted : KYCStatus.Rejected,
-                0
-            )
-        );
+        Applicant memory application = applicants.data[user].value;
+        application.status = isAccepted
+            ? KYCStatus.Accepted
+            : KYCStatus.Rejected;
+        applicants.insert(user, application);
         emit KYCStatusChanged(user, applicants.data[user].value.status);
+    }
+
+    function getKYCApplication(
+        address user
+    ) public view returns (Applicant memory) {
+        require(
+            isKycEvaluator(msg.sender) || msg.sender == user,
+            "Only KYC evaluators or the user can see the KYC application"
+        );
+        require(
+            applicants.data[user].value.user != address(0),
+            "KYC application does not exist for this user"
+        );
+        return applicants.data[user].value;
     }
 
     function getKYCStatus(address user) public view returns (KYCStatus) {
@@ -106,7 +118,7 @@ contract KYC {
     ) public view returns (address[] memory) {
         require(
             isKycEvaluator(msg.sender),
-            "Only KYC evaluators can see all KYC applications"
+            "Only KYC evaluators can see KYC applications"
         );
         uint256 count = 0;
         for (uint256 i = 0; i < applicants.keys.length; i++) {

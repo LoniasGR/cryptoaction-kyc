@@ -25,7 +25,7 @@ function Header() {
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             {isAuthenticated ? (
-              <Button variant="link" onClick={() => logout()}>Logout</Button>
+              <Button variant="link" onClick={() => logout({ redirectUri: window.location.origin })}>Logout</Button>
             ) : (
               <Button variant="link" onClick={() => login()}>Login</Button>
             )}

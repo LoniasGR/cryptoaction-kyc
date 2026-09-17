@@ -50,6 +50,11 @@ function AdminTable() {
             cell: (info) => <ApplicationStatusBadge status={info.getValue()} />,
             footer: (info) => info.column.id,
         }),
+        columnHelper.accessor("verified", {
+            header: "Digest Verified",
+            cell: (info) => info.getValue() ? "OK" : <p className="text-red-500">NOT VALID</p>,
+            footer: (info) => info.column.id,
+        }),
         columnHelper.accessor("submittedAt", {
             header: "Submitted At",
             cell: (props) => {
