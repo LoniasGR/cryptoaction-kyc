@@ -12,11 +12,13 @@ export function TextField({
   label,
   description,
   required,
+  disabled,
 }: {
   id?: string;
   label: string;
   description?: string;
   required?: boolean;
+  disabled?: boolean;
 }) {
   const field = useFieldContext<string>();
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
@@ -34,6 +36,7 @@ export function TextField({
         onChange={(e) => field.handleChange(e.target.value)}
         onBlur={field.handleBlur}
         required={required}
+        disabled={disabled}
       />
       {description && <FieldDescription>{description}</FieldDescription>}
       {isInvalid && <FieldError errors={field.state.meta.errors} />}

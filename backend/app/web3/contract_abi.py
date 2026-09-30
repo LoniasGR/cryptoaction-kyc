@@ -33,10 +33,7 @@ abi = [
         "type": "function",
     },
     {
-        "inputs": [
-            {"internalType": "address", "name": "user", "type": "address"},
-            {"internalType": "bytes32", "name": "digest", "type": "bytes32"},
-        ],
+        "inputs": [{"internalType": "bytes32", "name": "digest", "type": "bytes32"}],
         "name": "createKYCApplication",
         "outputs": [],
         "stateMutability": "nonpayable",

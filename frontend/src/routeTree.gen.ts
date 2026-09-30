@@ -10,74 +10,94 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
-import { Route as AuthenticatedAdminApplicationIdRouteImport } from './routes/_authenticated/admin/$applicationId'
-import { Route as AuthenticatedUserIndexRouteImport } from './routes/_authenticated/user/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedWalletConnectedRouteImport } from './routes/_authenticated/_wallet-connected'
+import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
+import { Route as AuthenticatedWalletConnectedAdminIndexRouteImport } from './routes/_authenticated/_wallet-connected/admin/index'
+import { Route as AuthenticatedWalletConnectedAdminApplicationIdRouteImport } from './routes/_authenticated/_wallet-connected/admin/$applicationId'
+import { Route as AuthenticatedWalletConnectedUserIndexRouteImport } from './routes/_authenticated/_wallet-connected/user/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+const AuthenticatedWalletConnectedRoute =
+  AuthenticatedWalletConnectedRouteImport.update({
+    id: '/_wallet-connected',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAdminApplicationIdRoute =
-  AuthenticatedAdminApplicationIdRouteImport.update({
+const AuthenticatedWalletConnectedAdminIndexRoute =
+  AuthenticatedWalletConnectedAdminIndexRouteImport.update({
+    id: '/admin/',
+    path: '/admin/',
+    getParentRoute: () => AuthenticatedWalletConnectedRoute,
+  } as any)
+const AuthenticatedWalletConnectedAdminApplicationIdRoute =
+  AuthenticatedWalletConnectedAdminApplicationIdRouteImport.update({
     id: '/admin/$applicationId',
     path: '/admin/$applicationId',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => AuthenticatedWalletConnectedRoute,
   } as any)
-const AuthenticatedUserIndexRoute = AuthenticatedUserIndexRouteImport.update({
-  id: '/user/',
-  path: '/user/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedWalletConnectedUserIndexRoute =
+  AuthenticatedWalletConnectedUserIndexRouteImport.update({
+    id: '/user/',
+    path: '/user/',
+    getParentRoute: () => AuthenticatedWalletConnectedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin/$applicationId': typeof AuthenticatedAdminApplicationIdRoute
-  '/admin/': typeof AuthenticatedAdminIndexRoute
-  '/user/': typeof AuthenticatedUserIndexRoute
+  '/wallet': typeof AuthenticatedWalletRoute
+  '/admin/$applicationId': typeof AuthenticatedWalletConnectedAdminApplicationIdRoute
+  '/admin/': typeof AuthenticatedWalletConnectedAdminIndexRoute
+  '/user/': typeof AuthenticatedWalletConnectedUserIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin/$applicationId': typeof AuthenticatedAdminApplicationIdRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
-  '/user': typeof AuthenticatedUserIndexRoute
+  '/wallet': typeof AuthenticatedWalletRoute
+  '/admin/$applicationId': typeof AuthenticatedWalletConnectedAdminApplicationIdRoute
+  '/admin': typeof AuthenticatedWalletConnectedAdminIndexRoute
+  '/user': typeof AuthenticatedWalletConnectedUserIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/_authenticated/admin/$applicationId': typeof AuthenticatedAdminApplicationIdRoute
-  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
-  '/_authenticated/user/': typeof AuthenticatedUserIndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/_wallet-connected': typeof AuthenticatedWalletConnectedRouteWithChildren
+  '/_authenticated/wallet': typeof AuthenticatedWalletRoute
+  '/_authenticated/_wallet-connected/admin/$applicationId': typeof AuthenticatedWalletConnectedAdminApplicationIdRoute
+  '/_authenticated/_wallet-connected/admin/': typeof AuthenticatedWalletConnectedAdminIndexRoute
+  '/_authenticated/_wallet-connected/user/': typeof AuthenticatedWalletConnectedUserIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/$applicationId' | '/admin/' | '/user/'
+  fullPaths: '/' | '/wallet' | '/admin/$applicationId' | '/admin/' | '/user/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/$applicationId' | '/admin' | '/user'
+  to: '/' | '/wallet' | '/admin/$applicationId' | '/admin' | '/user'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/_authenticated/admin/$applicationId'
-    | '/_authenticated/admin/'
-    | '/_authenticated/user/'
+    | '/_authenticated/_wallet-connected'
+    | '/_authenticated/wallet'
+    | '/_authenticated/_wallet-connected/admin/$applicationId'
+    | '/_authenticated/_wallet-connected/admin/'
+    | '/_authenticated/_wallet-connected/user/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -93,51 +113,86 @@ declare module '@tanstack/react-router' {
       id: '/_authenticated'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin/': {
-      id: '/_authenticated/admin/'
+    '/_authenticated/_wallet-connected': {
+      id: '/_authenticated/_wallet-connected'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedWalletConnectedRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/wallet': {
+      id: '/_authenticated/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AuthenticatedWalletRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_wallet-connected/admin/': {
+      id: '/_authenticated/_wallet-connected/admin/'
       path: '/admin'
       fullPath: '/admin/'
-      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedWalletConnectedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedWalletConnectedRoute
     }
-    '/_authenticated/admin/$applicationId': {
-      id: '/_authenticated/admin/$applicationId'
+    '/_authenticated/_wallet-connected/admin/$applicationId': {
+      id: '/_authenticated/_wallet-connected/admin/$applicationId'
       path: '/admin/$applicationId'
       fullPath: '/admin/$applicationId'
-      preLoaderRoute: typeof AuthenticatedAdminApplicationIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedWalletConnectedAdminApplicationIdRouteImport
+      parentRoute: typeof AuthenticatedWalletConnectedRoute
     }
-    '/_authenticated/user/': {
-      id: '/_authenticated/user/'
+    '/_authenticated/_wallet-connected/user/': {
+      id: '/_authenticated/_wallet-connected/user/'
       path: '/user'
       fullPath: '/user/'
-      preLoaderRoute: typeof AuthenticatedUserIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedWalletConnectedUserIndexRouteImport
+      parentRoute: typeof AuthenticatedWalletConnectedRoute
     }
   }
 }
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminApplicationIdRoute: typeof AuthenticatedAdminApplicationIdRoute
-  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
-  AuthenticatedUserIndexRoute: typeof AuthenticatedUserIndexRoute
+interface AuthenticatedWalletConnectedRouteChildren {
+  AuthenticatedWalletConnectedAdminApplicationIdRoute: typeof AuthenticatedWalletConnectedAdminApplicationIdRoute
+  AuthenticatedWalletConnectedAdminIndexRoute: typeof AuthenticatedWalletConnectedAdminIndexRoute
+  AuthenticatedWalletConnectedUserIndexRoute: typeof AuthenticatedWalletConnectedUserIndexRoute
 }
 
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminApplicationIdRoute: AuthenticatedAdminApplicationIdRoute,
-  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-  AuthenticatedUserIndexRoute: AuthenticatedUserIndexRoute,
+const AuthenticatedWalletConnectedRouteChildren: AuthenticatedWalletConnectedRouteChildren =
+  {
+    AuthenticatedWalletConnectedAdminApplicationIdRoute:
+      AuthenticatedWalletConnectedAdminApplicationIdRoute,
+    AuthenticatedWalletConnectedAdminIndexRoute:
+      AuthenticatedWalletConnectedAdminIndexRoute,
+    AuthenticatedWalletConnectedUserIndexRoute:
+      AuthenticatedWalletConnectedUserIndexRoute,
+  }
+
+const AuthenticatedWalletConnectedRouteWithChildren =
+  AuthenticatedWalletConnectedRoute._addFileChildren(
+    AuthenticatedWalletConnectedRouteChildren,
+  )
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedWalletConnectedRoute: typeof AuthenticatedWalletConnectedRouteWithChildren
+  AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
 }
 
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedWalletConnectedRoute:
+    AuthenticatedWalletConnectedRouteWithChildren,
+  AuthenticatedWalletRoute: AuthenticatedWalletRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

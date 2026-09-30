@@ -1,4 +1,3 @@
-import { Block } from "@tanstack/react-router";
 import z from "zod";
 
 export const KYCStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED", "DRAFT"]);

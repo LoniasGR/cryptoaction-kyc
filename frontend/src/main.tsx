@@ -1,15 +1,16 @@
 import { AuthProvider, useAuth } from '@/auth/authProvider';
 import { LoadingPage } from '@/components/pages/loading-page';
-import { useWeb3, Web3Provider } from '@/web3/web3-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import ReactDOM from 'react-dom/client';
+import { useConnection, WagmiProvider } from 'wagmi';
+import { config } from './config/wagmi';
 import { routeTree } from './routeTree.gen';
 
 const queryClient = new QueryClient();
 
 const router = createRouter({
-  context: { queryClient, auth: undefined!, web3: undefined! },
+  context: { queryClient, auth: undefined!, wagamiConnection: undefined! },
   routeTree,
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -23,23 +24,23 @@ declare module '@tanstack/react-router' {
 
 function AppWithAuth() {
   const auth = useAuth();
-  const web3 = useWeb3();
+  const connection = useConnection();
   if (!auth.isInitialized) {
     return <LoadingPage />;
   }
-  return (<RouterProvider router={router} context={{ queryClient, auth, web3 }} />);
+  return (<RouterProvider router={router} context={{ queryClient, auth, wagamiConnection: connection }} />);
 }
 
 const rootElement = document.getElementById('app')!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Web3Provider>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
           <AppWithAuth />
-        </Web3Provider>
-      </AuthProvider>
-    </QueryClientProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

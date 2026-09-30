@@ -66,12 +66,15 @@ contract KYC {
         return false;
     }
 
-    function createKYCApplication(address user, bytes32 digest) public {
+    function createKYCApplication(bytes32 digest) public {
         require(
-            applicants.data[user].value.user == address(0),
+            applicants.data[msg.sender].value.user == address(0),
             "KYC application already exists for this user"
         );
-        applicants.insert(user, Applicant(user, digest, KYCStatus.Pending, 0));
+        applicants.insert(
+            msg.sender,
+            Applicant(msg.sender, digest, KYCStatus.Pending, 0)
+        );
     }
 
     function decideKYC(address user, bool isAccepted) public {
@@ -85,6 +88,10 @@ contract KYC {
             : KYCStatus.Rejected;
         applicants.insert(user, application);
         emit KYCStatusChanged(user, applicants.data[user].value.status);
+    }
+
+    function haveApplied() public view returns (bool) {
+        return applicants.data[msg.sender].value.user != address(0);
     }
 
     function getKYCApplication(
