@@ -41,7 +41,7 @@ def validate_user(security_scopes: SecurityScopes, auth_header: str = Security(o
     )
 
     scope_role_map = {
-        "user": {"User", "Admin"},
+        "user": {"User"},
         "admin": {"Admin"},
     }
     for scope in security_scopes.scopes:

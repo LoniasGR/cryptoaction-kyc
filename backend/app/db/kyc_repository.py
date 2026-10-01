@@ -25,8 +25,16 @@ def get_all_applications_db(session: SessionDep):
     return kyc_applications
 
 
-def get_single_application_db(session: SessionDep, application_id: uuid.UUID):
+def get_single_application_by_id_db(session: SessionDep, application_id: uuid.UUID):
     stmt = select(KYCApplicationDB).where(KYCApplicationDB.id == application_id)
+    kyc_application = session.scalars(stmt).first()
+    return kyc_application
+
+
+def get_single_application_db(session: SessionDep, blockchain_address: str):
+    stmt = select(KYCApplicationDB).where(
+        KYCApplicationDB.blockchainAddress == blockchain_address
+    )
     kyc_application = session.scalars(stmt).first()
     return kyc_application
 

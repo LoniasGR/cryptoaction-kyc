@@ -12,11 +12,11 @@ class SQLBase(DeclarativeBase):
 class KYCApplicationDB(SQLBase):
     __tablename__ = "kyc_applications"
 
-    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), unique=True)
     fullName: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column()
     idFileHash: Mapped[str] = mapped_column()
-    blockchainAddress: Mapped[str] = mapped_column(index=True, unique=True)
+    blockchainAddress: Mapped[str] = mapped_column(index=True, primary_key=True)
     createdAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

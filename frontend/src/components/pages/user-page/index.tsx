@@ -1,6 +1,8 @@
+import { Button } from "#/components/ui/button";
 import { HttpError } from "@/api/base";
-import { fetchKYCApplicationById } from "@/api/kyc";
+import { fetchMyApplication } from "@/api/kyc";
 import { useAuth } from "@/auth/authProvider";
+import { Card } from "@/components/ui/card";
 import { ABI } from "@/config/contract";
 import { queryKeys } from "@/config/queryKeys";
 import { ETHEREUM_DATA } from "@/config/vars";
@@ -9,8 +11,6 @@ import { useConnection, useReadContract } from "wagmi";
 import { LoadingPage } from "../loading-page";
 import { UserApplication } from "./user-application";
 import { UserProfile } from "./user-profile";
-import { Card } from "@/components/ui/card";
-import { Button } from "#/components/ui/button";
 
 export function UserPage() {
     const auth = useAuth();
@@ -21,7 +21,7 @@ export function UserPage() {
 
     const query = useQuery({
         queryKey: queryKeys.kycApplication(auth.userInfo!.sub),
-        queryFn: () => fetchKYCApplicationById(auth.userInfo!.sub),
+        queryFn: () => fetchMyApplication(),
         retry: false,
     });
     if (query.isLoading || kycLoading) {

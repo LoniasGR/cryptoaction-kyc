@@ -8,20 +8,14 @@ from ..auth.deps import adminDependency, is_user_admin, userDependency
 from ..db.db import SessionDep
 from ..db.kyc_repository import (
     create_kyc_application,
-    get_all_applications_count_db,
+    get_all_applications_db,
+    get_single_application_by_id_db,
+    get_single_application_db,
 )
 from ..ipfs.client import add_file
-from ..kyc.service import (
-    change_application_status,
-    get_all_applications,
-    get_all_applications_count_by_status,
-    get_single_application,
-)
 from .kyc import (
     KYCApplicationCreate,
-    KYCApplicationStatistics,
     KYCApplicationSummary,
-    KYCStatus,
 )
 
 router = APIRouter(prefix="/kyc", tags=["kyc"])
@@ -70,65 +64,50 @@ async def create_kyc_application_route(
 
 @router.get("", response_model=list[KYCApplicationSummary])
 def get_kyc_applications(session: SessionDep, admin: adminDependency):
-    return get_all_applications(session)
-
-
-@router.get("/statistics", response_model=KYCApplicationStatistics)
-def get_kyc_statistics(session: SessionDep, admin: adminDependency):
-    total_application = get_all_applications_count_db(session)
-    if total_application is None:
-        total_application = 0
-
-    pending_applications = get_all_applications_count_by_status(KYCStatus.PENDING)
-    if pending_applications is None:
-        pending_applications = 0
-
-    approved_applications = get_all_applications_count_by_status(KYCStatus.APPROVED)
-    if approved_applications is None:
-        approved_applications = 0
-
-    rejected_applications = get_all_applications_count_by_status(KYCStatus.REJECTED)
-    if rejected_applications is None:
-        rejected_applications = 0
-
-    return {
-        "total_applications": total_application,
-        "pending_applications": pending_applications,
-        "approved_applications": approved_applications,
-        "rejected_applications": rejected_applications,
-    }
-
-
-@router.get("/{application_id}", response_model=KYCApplicationSummary)
-def get_kyc_application(
-    session: SessionDep, application_id: uuid.UUID, user: userDependency
-):
-    if str(user.get("sub")) != str(application_id) and not is_user_admin(user):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"User sub {user.get('sub')} is not authorized to access this  {application_id}",
+    apps = []
+    for app in get_all_applications_db(session):
+        kycBase = KYCApplicationCreate.model_validate({**app.__dict__})
+        apps.append(
+            KYCApplicationSummary.model_validate(
+                {
+                    **app.__dict__,
+                    "digest": kycBase.create_digest(),
+                }
+            )
         )
-    app = get_single_application(session, application_id)
-    return app
+    return apps
 
 
-@router.put("/{application_id}/approve")
-def approve_kyc_application(
-    session: SessionDep, application_id: uuid.UUID, admin: adminDependency
-):
-    kyc_application_old = get_single_application(session, application_id)
-    if kyc_application_old is None:
+@router.get("/me", response_model=KYCApplicationSummary)
+def get_my_kyc_application(session: SessionDep, user: userDependency):
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User ID not found"
+        )
+    app = get_single_application_by_id_db(session, uuid.UUID(user_id))
+    if app is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
-    change_application_status(session, application_id, KYCStatus.APPROVED)
-    return {"message": "KYC application approved"}
+    kycBase = KYCApplicationCreate.model_validate({**app.__dict__})
+    return KYCApplicationSummary.model_validate(
+        {
+            **app.__dict__,
+            "digest": kycBase.create_digest(),
+        }
+    )
 
 
-@router.put("/{application_id}/reject")
-def reject_kyc_application(
-    session: SessionDep, application_id: uuid.UUID, admin: adminDependency
+@router.get("/{blockchain_address}", response_model=KYCApplicationSummary)
+def get_kyc_application(
+    session: SessionDep, blockchain_address: str, user: adminDependency
 ):
-    kyc_application_old = get_single_application(session, application_id)
-    if kyc_application_old is None:
+    app = get_single_application_db(session, blockchain_address)
+    if app is None:
         raise HTTPException(status_code=404, detail="KYC application not found")
-    change_application_status(session, application_id, KYCStatus.REJECTED)
-    return {"message": "KYC application rejected"}
+    kycBase = KYCApplicationCreate.model_validate({**app.__dict__})
+    return KYCApplicationSummary.model_validate(
+        {
+            **app.__dict__,
+            "digest": kycBase.create_digest(),
+        }
+    )

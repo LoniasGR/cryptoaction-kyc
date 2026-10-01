@@ -10,7 +10,7 @@ import { routeTree } from './routeTree.gen';
 const queryClient = new QueryClient();
 
 const router = createRouter({
-  context: { queryClient, auth: undefined!, wagamiConnection: undefined! },
+  context: { queryClient, auth: undefined!, wagmiConnection: undefined! },
   routeTree,
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -28,7 +28,7 @@ function AppWithAuth() {
   if (!auth.isInitialized) {
     return <LoadingPage />;
   }
-  return (<RouterProvider router={router} context={{ queryClient, auth, wagamiConnection: connection }} />);
+  return (<RouterProvider router={router} context={{ queryClient, auth, wagmiConnection: connection }} />);
 }
 
 const rootElement = document.getElementById('app')!;

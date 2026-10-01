@@ -10,7 +10,7 @@ import "../styles.css";
 interface RouterContext {
   queryClient: QueryClient
   auth: AuthContextType
-  wagamiConnection: UseConnectionReturnType
+  wagmiConnection: UseConnectionReturnType
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

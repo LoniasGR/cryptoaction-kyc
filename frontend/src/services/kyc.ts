@@ -30,3 +30,18 @@ export async function submitKYCApplication(value: KYCApplicationSubmit) {
 
     return submitKYCApplicationAPI(value);
 }
+
+// Records the KYC evaluator's decision on-chain (signed by the connected admin wallet) before the
+// backend is asked to persist the decision.
+// TODO: Expiration date has to go on-chain
+export async function decideKYCOnChain(userAddress: string, isAccepted: boolean, adminAddress: `0x${string}`) {
+    const tx = await writeContract(config, {
+        abi: ABI,
+        address: ETHEREUM_DATA.contractAddress,
+        functionName: "decideKYC",
+        args: [userAddress as `0x${string}`, isAccepted],
+        account: adminAddress
+    });
+    console.log('submitted KYC decision to blockchain with transaction:', tx);
+    return tx;
+}

@@ -9,8 +9,6 @@ from .db.db import create_db_and_tables
 from .ipfs import file_route
 from .ipfs.client import get_ipfs_client
 from .kyc.kyc_route import router as kyc_router
-from .web3 import init_web3
-from .web3.contract import init_contract
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +21,6 @@ logging.basicConfig(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
-    init_contract(init_web3())
     await get_ipfs_client()
     yield
 

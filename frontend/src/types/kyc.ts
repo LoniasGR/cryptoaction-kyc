@@ -1,6 +1,13 @@
 import z from "zod";
 
-export const KYCStatusSchema = z.enum(["PENDING", "APPROVED", "REJECTED", "DRAFT"]);
+export enum KYCStatus {
+  DRAFT = 0,
+  APPROVED,
+  REJECTED,
+  PENDING,
+}
+
+export const KYCStatusSchema = z.enum(KYCStatus);
 
 export const KYCApplicationBaseSchema = z.object({
   fullName: z.string().min(1, { message: "Full name is required" }),
@@ -52,5 +59,5 @@ export type KYCApplicationSubmit = z.infer<typeof KYCApplicationSubmitSchema>;
 export type KYCApplicationSubmitToHash = z.infer<typeof KYCApplicationSubmitToHash>;
 export type KYCApplicationSubmitWithDigest = z.infer<typeof KYCApplicationSubmitWithDigestSchema>;
 export type KYCStatistics = z.infer<typeof KYCStatisticsSchema>;
-export type KYCStatus = z.infer<typeof KYCStatusSchema>;
+export type KYCStatusType = z.infer<typeof KYCStatusSchema>;
 export type Hex32Byte = z.infer<typeof Hex32ByteSchema>;

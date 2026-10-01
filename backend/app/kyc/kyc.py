@@ -33,9 +33,7 @@ class KYCApplicationCreate(BaseModel):
 
 class KYCApplicationSummary(KYCApplicationCreate):
     id: uuid.UUID
-    status: str
     digest: str
-    verified: bool
     submittedAt: datetime
     expiringAt: datetime | None = None
 

@@ -15,8 +15,13 @@ export async function fetchKYCApplications() {
   return response.data;
 }
 
-export async function fetchKYCApplicationById(id: string) {
+export async function fetchKYCApplicationByBlockchainId(id: string) {
   const response = await api.get<KYCApplication>(`/kyc/${id}`);
+  return response.data;
+}
+
+export async function fetchMyApplication() {
+  const response = await api.get<KYCApplication>(`/kyc/me`);
   return response.data;
 }
 

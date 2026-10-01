@@ -10,8 +10,10 @@ import {
     TableHeader,
     TableRow
 } from "@/components/ui/table";
+import { ABI } from "@/config/contract";
 import { queryKeys } from "@/config/queryKeys";
-import { type KYCApplication } from "@/types/kyc";
+import { ETHEREUM_DATA } from "@/config/vars";
+import { KYCStatus, type KYCApplication } from "@/types/kyc";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -22,12 +24,44 @@ import {
     tableFeatures,
     useTable,
 } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useConnection, useReadContract } from "wagmi";
 
 function AdminTable() {
+    const { address } = useConnection();
+    // Pull the authoritative application list (addresses + live status) from the smart contract first.
+    const { data: onChainApplications, isLoading: onChainLoading } = useReadContract({
+        abi: ABI,
+        address: ETHEREUM_DATA.contractAddress,
+        functionName: 'getAllKycApplications',
+        account: address,
+    });
     const query = useQuery({
         queryKey: queryKeys.kycApplications,
         queryFn: fetchKYCApplications,
     });
+
+    // Off-chain fields (name, submission date, file hash, etc.) come from the backend, but the
+    // displayed status always reflects the live on-chain value.
+    const data = useMemo<KYCApplication[]>(() => {
+        if (!query.data) return [];
+        if (!onChainApplications) return query.data;
+
+        const onChainByAddress = new Map(
+            onChainApplications.map((applicant) => [applicant.user.toLowerCase(), applicant]),
+        );
+
+        return query.data.map((application) => {
+            const onChainApplication = onChainByAddress.get(application.blockchainAddress.toLowerCase());
+            if (!onChainApplication) return application;
+            return {
+                ...application,
+                status: onChainApplication.status,
+                verified: onChainApplication.digest === `0x${application.digest}`,
+            };
+        });
+    }, [query.data, onChainApplications]);
+
     const features = tableFeatures({
         rowPaginationFeature,
         paginatedRowModel: createPaginatedRowModel(),
@@ -69,11 +103,11 @@ function AdminTable() {
             cell: (info) =>
                 <Button variant="link">
                     <Link
-                        to="/admin/$applicationId"
+                        to="/admin/$address"
                         params={{
-                            applicationId: info.row.original.id,
+                            address: info.row.original.blockchainAddress,
                         }}>
-                        {info.row.original.status === "PENDING" ? "Review" : "View"}
+                        {info.row.original.status === KYCStatus.PENDING ? "Review" : "View"}
                     </Link>
                 </Button>
         }),
@@ -81,7 +115,7 @@ function AdminTable() {
     const table = useTable({
         features: features,
         columns: defaultColumns,
-        data: query.data ?? [],
+        data: data,
     });
 
     return (
@@ -92,7 +126,9 @@ function AdminTable() {
                         ? "Loading KYC applications..."
                         : query.isError
                             ? "Failed to load KYC applications."
-                            : ""}
+                            : onChainLoading
+                                ? "Loading live status from the blockchain..."
+                                : ""}
                 </TableCaption>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
